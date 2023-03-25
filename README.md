@@ -57,7 +57,6 @@ You can find the configuration file for the CircleCI pipeline in the `.circleci`
 ## Frontend Project
 
 The backend project interacts with a separate frontend project built using React. You can find the frontend project repository and its README file here: [React frontend](https://github.com/tcivie/project_management_frontend)
-
-Please note that the user badges displayed above are placeholders. Replace \`user1\`, \`user2\`, \`user3\`, and \`user4\` with the actual GitHub usernames of the project contributors.
+usernames of the project contributors.
 
 If you have any questions, please feel free to reach out to the project maintainers. We're always happy to help!
