@@ -1,4 +1,4 @@
-import { describe, it } from 'mocha';
+import { describe } from 'mocha';
 import { assert } from 'chai';
 
 describe('Basic Array Test', () => {
