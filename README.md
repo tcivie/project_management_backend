@@ -19,6 +19,8 @@ cd project_management_backend
 3. Install the dependencies:
 ```
 npm install
+npm install dotenv
+npm install mongoose
 ```
 
 4. Run the development server:
