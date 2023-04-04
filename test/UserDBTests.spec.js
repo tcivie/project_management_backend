@@ -43,10 +43,3 @@ describe('Validate User password test', async () => {
         assert.equal(true, await user.validPassword(correctPass));
     });
 });
-
-describe('Basic Array Test', () => {
-    it('should return -1 when the value is not present', () => {
-        // eslint-disable-next-line no-undef
-        assert.equal(-1, [1, 2, 3].indexOf(4));
-    });
-});
