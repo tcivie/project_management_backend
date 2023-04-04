@@ -5,7 +5,6 @@ const router = express.Router();
 
 router.post('/register', async (req, res) => {
     const ret = { register: false };
-
     try {
         const { email, username, password } = req.body;
         const nickname = username;
@@ -30,17 +29,11 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
     const ret = { Login: true };
     try {
-        const { email = null, username = null, password } = req.body;
-        if (email && username) {
-            res.status(400).json({ Error: 'Only one param allowed' });
-            return;
-        }
+        const { identifier, password } = req.body;
         const user = await User.findOne({
-            $or: [{ email }, { username }],
+            $or: [{ email: identifier }, { username: identifier }],
         });
-
-        if (username) ret.username = username;
-        else if (email) ret.email = email;
+        ret.user = user;
         if (!user || !(await user.validPassword(password))) {
             ret.Login = false;
         }
