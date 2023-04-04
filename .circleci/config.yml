@@ -7,6 +7,15 @@ orbs:
   node: circleci/node@5.1.0
 
 jobs:
+  install-node:
+    executor:
+      name: node/default
+    steps:
+      - checkout
+      - node/install:
+          install-yarn: false
+          node-version: '16.13'
+      - run: node --version
   cicd-tests-and-lint:
     executor:
       name: node/default
@@ -28,4 +37,5 @@ jobs:
 workflows:
   example-workflow:
     jobs:
+      - install-node
       - cicd-tests-and-lint
