@@ -8,8 +8,8 @@ orbs:
 
 jobs:
   install-node:
-    executor:
-      name: node/default
+    docker:
+      - image: 'cimg/base:stable'
     steps:
       - checkout
       - node/install:
