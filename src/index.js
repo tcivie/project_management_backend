@@ -5,11 +5,10 @@ const port = process.env.port || 3000;
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const userRoutes = require('../routers/users');
 const cors = require('cors');
+const userRoutes = require('../routers/users');
 
 const app = express();
-
 
 app.use(cors());
 // configure body-parser middleware
