@@ -1,6 +1,8 @@
 # Created by https://www.toptal.com/developers/gitignore/api/node,webstorm,vs
 # Edit at https://www.toptal.com/developers/gitignore?templates=node,webstorm,vs
 
+.env
+
 ### Node ###
 # Logs
 logs
