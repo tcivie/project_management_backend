@@ -18,7 +18,6 @@ router.post('/register', async (req, res) => {
         await user.hashPassword();
         await user.save();
         ret.register = true;
-        ret.user = user;
         res.status(200).json(ret);
     } catch (error) {
         ret.error = error;
@@ -27,17 +26,16 @@ router.post('/register', async (req, res) => {
 });
 
 router.post('/login', async (req, res) => {
-    const ret = { Login: true };
+    const ret = { login: true };
     try {
         const { identifier, password } = req.body;
         const user = await User.findOne({
             $or: [{ email: identifier }, { username: identifier }],
         });
-        ret.user = user;
         if (!user || !(await user.validPassword(password))) {
-            ret.Login = false;
+            ret.login = false;
         }
-        res.status(ret.Login ? 200 : 404).json(ret);
+        res.status(ret.login ? 200 : 404).json(ret);
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
