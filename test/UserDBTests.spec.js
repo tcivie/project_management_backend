@@ -4,7 +4,7 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const { describe, it } = require('mocha');
 const { assert } = require('chai');
-const User = require('../models/userModule');
+const User = require('../models/User');
 
 // connect to DB
 mongoose

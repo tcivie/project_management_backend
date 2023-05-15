@@ -6,16 +6,21 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const userRoutes = require('../routers/users');
+const apiRoutes = require('../routers/apiRoutes');
+const cookieParser = require('cookie-parser')
+const { logger } = require('../middleware/logger')
 
 const app = express();
+
+app.use(logger);
 
 app.use(cors());
 // configure body-parser middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieParser());
 // user routes
-app.use('/api/users', userRoutes);
+app.use('/api', apiRoutes);
 
 // connect to DB
 mongoose
