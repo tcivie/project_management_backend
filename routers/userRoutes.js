@@ -16,11 +16,11 @@ router.use(verifyJWT);
 router
     .route('/')
     .get(
-        usersController.getAllUsers,
         hasRoles(roleList.superAdmin, roleList.admin),
+        usersController.getAllUsers
     )
-    .post(usersController.registerUser, hasNoRoles())
-    .patch(usersController.updateUser, CanPerfomAction())
-    .delete(usersController.deactivateUser, CanPerfomAction());
+    .post(hasNoRoles(), usersController.registerUser)
+    .patch(CanPerfomAction(), usersController.updateUser)
+    .delete(CanPerfomAction(), usersController.deleteUser);
 
 module.exports = router;

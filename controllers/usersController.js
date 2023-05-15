@@ -9,8 +9,9 @@ const getAllUsers = asyncHandler(async (req, res) => {
     const users = await User.find().select('-password').lean();
     if (!users?.length) {
         return res.status(400).json({ message: 'No users found' });
+    } else {
+        res.status(200).json(users);
     }
-    res.json(users);
 });
 
 // @desc    Get user by id
@@ -66,7 +67,7 @@ const registerUser = asyncHandler(async (req, res) => {
 // @access  Private/Admin
 const updateUser = asyncHandler(async (req, res) => {
     const { email, username, password, nickname } = req.body;
-    const user = await User.findOne(username).exec();
+    const user = await User.findOne({ username: username}).exec();
     if (!user) {
         return res.status(400).json({ message: 'User not found' });
     }
@@ -76,7 +77,7 @@ const updateUser = asyncHandler(async (req, res) => {
         user.password = await bcrypt.hash(password, 10);
     }
     const updatedUser = await user.save();
-    res.json({
+    res.status(200).json({
         _id: updatedUser._id,
         email: updatedUser.email,
         nickname: updatedUser.nickname,
