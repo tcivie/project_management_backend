@@ -6,9 +6,9 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const apiRoutes = require('../routers/apiRoutes');
-const cookieParser = require('cookie-parser')
-const { logger } = require('../middleware/logger')
+const { logger } = require('../middleware/logger');
 
 const app = express();
 
