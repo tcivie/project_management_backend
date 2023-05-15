@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema(
             required: true,
         },
         roles: {
-            type : Number,
+            type: Number,
             required: false,
             default: 0,
         },
@@ -29,7 +29,7 @@ const userSchema = new mongoose.Schema(
             type: Boolean,
             required: false,
             default: true,
-        }
+        },
     },
     { timestamps: true },
 );

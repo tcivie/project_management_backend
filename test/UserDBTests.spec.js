@@ -39,15 +39,19 @@ mongoose
                 assert.equal(true, await user.validPassword(correctPass));
             });
         });
+        describe('Register', async () => {
+            it('registers a user, should return status 200 for succesfull register', async () => {
+                // eslint-disable-next-line no-undef
+                const body = { username: '' };
+                const wrongPass = '123456';
+                const correctPass = '12345';
+                assert.equal(false, await user.validPassword(wrongPass));
+                assert.equal(true, await user.validPassword(correctPass));
+            });
+        });
         mongoose.connection.close();
         process.exit();
     })
     .catch((error) => {
         console.log(error);
     });
-
-
-
-
-
-
