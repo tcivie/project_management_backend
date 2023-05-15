@@ -97,15 +97,16 @@ const deleteUser = asyncHandler(async (req, res) => {
     if (!user) {
         return res.status(400).json({ message: 'User not found' });
     }
+    let reply = '';
     if (isDelete) {
         const result = await user.deleteOne();
-        const reply = `Username ${result.username} with ID ${result._id} deleted`;
+        reply = `Username ${result.username} with ID ${result._id} deleted`;
     } else {
         user.active = false;
         await user.save();
-        const reply = `Username ${user.username} with ID ${user._id} diactivated`;
+        reply = `Username ${user.username} with ID ${user._id} deactivated`;
     }
-    res.json(reply);
+    res.status(200).json(reply);
 });
 
 module.exports = {

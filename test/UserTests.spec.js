@@ -149,6 +149,64 @@ describe('PATCH /api/users', function() {
     });
 });
 
+describe("DELETE /api/users", () => {
+    let user;
+    beforeEach(async () => {
+        // Create a user for testing
+        user = new User({
+            username: "testUser",
+            email: "testUser@test.com",
+            password: "testPassword",
+            roles: 1,
+            nickname: "testNick",
+            active: true,
+        });
+        await user.save();
+    });
+
+    afterEach(async () => {
+        // Remove the user after testing
+        await User.deleteMany();
+    });
+
+    it("Should return 400 if no user ID is provided", async () => {
+        const res = await request
+            .delete("/api/users")
+            .send({});
+        assert.equal(res.status, 400);
+        assert.equal(res.body.message, "User ID Required");
+    });
+
+    it("Should return 400 if user is not found", async () => {
+        const res = await request
+            .delete("/api/users")
+            .send({ id: new mongoose.Types.ObjectId() });
+        assert.equal(res.status, 400);
+        assert.equal(res.body.message, "User not found");
+    });
+
+    it("Should delete the user if isDelete is true", async () => {
+        const res = await request
+            .delete("/api/users")
+            .send({ id: user._id, isDelete: true });
+        assert.equal(res.status, 200);
+        assert.equal(res.body, `Username ${user.username} with ID ${user._id} deleted`);
+        const deletedUser = await User.findById(user._id);
+        assert.isNull(deletedUser);
+    });
+
+    it("Should deactivate the user if isDelete is false", async () => {
+        const res = await request
+            .delete("/api/users")
+            .send({ id: user._id, isDelete: false });
+        assert.equal(res.status, 200);
+        assert.equal(res.body, `Username ${user.username} with ID ${user._id} deactivated`);
+        const updatedUser = await User.findById(user._id);
+        assert.isFalse(updatedUser.active);
+    });
+});
+
+
 // Add a helper function to generate JWTs with specific roles for testing
 function generateTokenWithRoles(roles) {
     const payload = {
