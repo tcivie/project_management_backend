@@ -6,23 +6,25 @@ const User = require('../models/User');
 const supertest = require('supertest');
 const jwt = require('jsonwebtoken');
 const app = require('../src/App');
-const {roleList} = require("../middleware/checkRoles");
+const { roleList } = require('../middleware/checkRoles');
 const request = supertest(app);
 
-before(async function() {
-    await mongoose.connect(process.env.DBURL, { useNewUrlParser: true, useUnifiedTopology: true });
+before(async function () {
+    await mongoose.connect(process.env.DBURL, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+    });
 });
 
-after(async function() {
+after(async function () {
     await User.deleteOne({ username: 'testuser' });
     await mongoose.disconnect();
 });
-describe('POST /api/users', function() {
-
-    it('should return 400 if username, password or email are missing', async function() {
+describe('POST /api/users', function () {
+    it('should return 400 if username, password or email are missing', async function () {
         const res = await request.post('/api/users').send({
             username: 'testuser',
-            password: 'testpassword'
+            password: 'testpassword',
             // email is missing
         });
 
@@ -30,16 +32,16 @@ describe('POST /api/users', function() {
         assert.deepEqual(res.body, { message: 'All fields are required' });
     });
 
-    it('should return 201 and create a user if valid data is provided', async function() {
+    it('should return 201 and create a user if valid data is provided', async function () {
         const res = await request.post('/api/users').send({
             username: 'testuser',
             password: 'testpassword',
             email: 'test@test.com',
-            nickname: 'testnickname'
+            nickname: 'testnickname',
         });
 
         assert.equal(res.status, 201);
-        assert.deepEqual(res.body, { "message": 'New user testuser created' });
+        assert.deepEqual(res.body, { message: 'New user testuser created' });
 
         const user = await User.findOne({ username: 'testuser' });
         assert.isNotNull(user);
@@ -47,22 +49,21 @@ describe('POST /api/users', function() {
         assert.isTrue(await user.validPassword('testpassword'));
     });
 
-    it('should return 409 if username already exists', async function() {
-
+    it('should return 409 if username already exists', async function () {
         const res = await request.post('/api/users').send({
             username: 'testuser',
             password: 'testpassword',
             email: 'test@test.com',
-            nickname: 'anothernickname'
+            nickname: 'anothernickname',
         });
 
         assert.equal(res.status, 409);
-        assert.deepEqual(res.body, { "message": 'Duplicate username' });
+        assert.deepEqual(res.body, { message: 'Duplicate username' });
     });
 });
 
-describe('GET /api/users', function() {
-    it('should return 403 if not authorized (no JWT or invalid JWT)', async function() {
+describe('GET /api/users', function () {
+    it('should return 403 if not authorized (no JWT or invalid JWT)', async function () {
         // Test with no JWT
         let res = await request.get('/api/users');
         assert.equal(res.status, 403);
@@ -74,7 +75,7 @@ describe('GET /api/users', function() {
         assert.equal(res.status, 403);
     });
 
-    it('should return 403 if authorized but with insufficient roles', async function() {
+    it('should return 403 if authorized but with insufficient roles', async function () {
         // Test with a JWT for a user with insufficient roles (e.g., a regular user)
         const token = generateTokenWithRoles(roleList.user);
         const res = await request
@@ -84,7 +85,7 @@ describe('GET /api/users', function() {
         assert.equal(res.status, 403);
     });
 
-    it('should return 200 and a list of users if authorized and with valid roles', async function() {
+    it('should return 200 and a list of users if authorized and with valid roles', async function () {
         // Test with a JWT for a user with valid roles (e.g., an admin or superAdmin)
         const token = generateTokenWithRoles(roleList.admin);
         const res = await request
@@ -96,8 +97,8 @@ describe('GET /api/users', function() {
     });
 });
 
-describe('PATCH /api/users', function() {
-    it('should return 400 if the user does not exist', async function() {
+describe('PATCH /api/users', function () {
+    it('should return 400 if the user does not exist', async function () {
         const token = generateTokenWithRoles(roleList.admin);
         const res = await request
             .patch('/api/users')
@@ -108,8 +109,7 @@ describe('PATCH /api/users', function() {
         assert.equal(res.body.message, 'User not found');
     });
 
-    it('should update the email of the user', async function() {
-
+    it('should update the email of the user', async function () {
         const token = generateTokenWithRoles(roleList.user);
         const newEmail = 'newemail@example.com';
         const res = await request
@@ -121,7 +121,7 @@ describe('PATCH /api/users', function() {
         assert.equal(res.body.email, newEmail);
     });
 
-    it('should update the nickname of the user', async function() {
+    it('should update the nickname of the user', async function () {
         const token = generateTokenWithRoles(roleList.user);
         const newNickname = 'newNickname';
         const res = await request
@@ -133,7 +133,7 @@ describe('PATCH /api/users', function() {
         assert.equal(res.body.nickname, newNickname);
     });
 
-    it('should update the password of the user', async function() {
+    it('should update the password of the user', async function () {
         const token = generateTokenWithRoles(roleList.user);
         const newPassword = 'newPassword';
         const res = await request
@@ -149,16 +149,16 @@ describe('PATCH /api/users', function() {
     });
 });
 
-describe("DELETE /api/users", () => {
+describe('DELETE /api/users', () => {
     let user;
     beforeEach(async () => {
         // Create a user for testing
         user = new User({
-            username: "testUser",
-            email: "testUser@test.com",
-            password: "testPassword",
+            username: 'testUser',
+            email: 'testUser@test.com',
+            password: 'testPassword',
             roles: 1,
-            nickname: "testNick",
+            nickname: 'testNick',
             active: true,
         });
         await user.save();
@@ -169,43 +169,46 @@ describe("DELETE /api/users", () => {
         await User.deleteMany();
     });
 
-    it("Should return 400 if no user ID is provided", async () => {
-        const res = await request
-            .delete("/api/users")
-            .send({});
+    it('Should return 400 if no user ID is provided', async () => {
+        const res = await request.delete('/api/users').send({});
         assert.equal(res.status, 400);
-        assert.equal(res.body.message, "User ID Required");
+        assert.equal(res.body.message, 'User ID Required');
     });
 
-    it("Should return 400 if user is not found", async () => {
+    it('Should return 400 if user is not found', async () => {
         const res = await request
-            .delete("/api/users")
+            .delete('/api/users')
             .send({ id: new mongoose.Types.ObjectId() });
         assert.equal(res.status, 400);
-        assert.equal(res.body.message, "User not found");
+        assert.equal(res.body.message, 'User not found');
     });
 
-    it("Should delete the user if isDelete is true", async () => {
+    it('Should delete the user if isDelete is true', async () => {
         const res = await request
-            .delete("/api/users")
+            .delete('/api/users')
             .send({ id: user._id, isDelete: true });
         assert.equal(res.status, 200);
-        assert.equal(res.body, `Username ${user.username} with ID ${user._id} deleted`);
+        assert.equal(
+            res.body,
+            `Username ${user.username} with ID ${user._id} deleted`,
+        );
         const deletedUser = await User.findById(user._id);
         assert.isNull(deletedUser);
     });
 
-    it("Should deactivate the user if isDelete is false", async () => {
+    it('Should deactivate the user if isDelete is false', async () => {
         const res = await request
-            .delete("/api/users")
+            .delete('/api/users')
             .send({ id: user._id, isDelete: false });
         assert.equal(res.status, 200);
-        assert.equal(res.body, `Username ${user.username} with ID ${user._id} deactivated`);
+        assert.equal(
+            res.body,
+            `Username ${user.username} with ID ${user._id} deactivated`,
+        );
         const updatedUser = await User.findById(user._id);
         assert.isFalse(updatedUser.active);
     });
 });
-
 
 // Add a helper function to generate JWTs with specific roles for testing
 function generateTokenWithRoles(roles) {
