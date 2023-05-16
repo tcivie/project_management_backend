@@ -17,7 +17,7 @@ router
     .route('/')
     .get(
         hasRoles(roleList.superAdmin, roleList.admin),
-        usersController.getAllUsers
+        usersController.getAllUsers,
     )
     .post(hasNoRoles(), usersController.registerUser)
     .patch(CanPerfomAction(), usersController.updateUser)
