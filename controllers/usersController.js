@@ -67,7 +67,7 @@ const registerUser = asyncHandler(async (req, res) => {
 // @access  Private/Admin
 const updateUser = asyncHandler(async (req, res) => {
     const { email, username, password, nickname } = req.body;
-    const user = await User.findOne({ username: username}).exec();
+    const user = await User.findOne({ username: username }).exec();
     if (!user) {
         return res.status(400).json({ message: 'User not found' });
     }

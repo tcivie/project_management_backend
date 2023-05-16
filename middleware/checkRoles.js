@@ -17,7 +17,9 @@ const hasRoles = (...args) => {
         });
         if (flag) next();
         else
-            return res.status(403).json({ message: 'Insuffcient permissions.' });
+            return res
+                .status(403)
+                .json({ message: 'Insuffcient permissions.' });
     };
 };
 
@@ -44,13 +46,17 @@ const CanPerfomAction = () => {
     return (req, res, next) => {
         console.log('req.user', req.user);
         console.log('req.body.username', req.body.username);
-        const isUserActionOnThemselves = (req.user === req.body.username || req.body.username === undefined);
+        const isUserActionOnThemselves =
+            req.user === req.body.username || req.body.username === undefined;
         if (isUserActionOnThemselves) {
             console.log('isUserActionOnThemselves', isUserActionOnThemselves);
             next();
         } else {
             console.log('req.roles', req.roles);
-            const checkRolesMiddleware = hasRoles(roleList.admin, roleList.superAdmin);
+            const checkRolesMiddleware = hasRoles(
+                roleList.admin,
+                roleList.superAdmin,
+            );
             checkRolesMiddleware(req, res, next);
         }
     };
