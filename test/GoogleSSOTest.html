@@ -30,6 +30,8 @@
               console.log(data)
               // change the isSignedIn div to show the user's email address and success message
                 document.getElementById("isSignedIn").innerHTML = "You are signed in as: " + data.UserInfo.username;
+              // remove the sign in button
+                document.getElementsByClassName("g_id_signin")[0].remove();
             })
             .catch((error) => {
               console.error('Error:', error);
