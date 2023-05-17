@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const app = require('./App');
-const cities = require('../models/City');
+
 const port = process.env.port || 3000;
 
 mongoose
