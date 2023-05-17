@@ -29,8 +29,8 @@ class Cities extends SearchDict {
                 name: city.name,
                 id: city.id,
                 location: [
-                    parseFloat(city.longitude),
                     parseFloat(city.latitude),
+                    parseFloat(city.longitude),
                 ],
                 country: city.country_name,
                 stateName: city.state_name,
@@ -101,15 +101,15 @@ class Cities extends SearchDict {
             arePointsClose(
                 latitude,
                 longitude,
-                value.location[1],
                 value.location[0],
+                value.location[1],
                 distance,
             ),
         );
     }
 
     getCitiesCloseToLocation(location, distance) {
-        return this.getCitiesCloseToPoint(location[1], location[0], distance);
+        return this.getCitiesCloseToPoint(location[0], location[1], distance);
     }
 
     count() {

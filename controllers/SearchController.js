@@ -1,7 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const cities = require('../models/City');
 const countries = require('../models/Country');
-const Country = require('../models/Country');
 
 // @desc searches countries and cities based on query
 // @route POST /api/search/query
@@ -45,6 +44,22 @@ const searchQuery = asyncHandler(async (req, res) => {
     return res.status(200).json(cityCountries);
 });
 
+// @desc searches cities in a radius
+// @route POST /api/search/nearPoint
+// @access Public
+const searchNear = asyncHandler(async (req, res) => {
+    const { point, radius } = req.body;
+    // point: [lat,lon]
+    if (!point || !radius) {
+        return res
+            .status(403)
+            .json({ error: 'Invalid rquest, insuficient arguments.' });
+    }
+    const cityRes = cities.getCitiesCloseToLocation(point, radius);
+    return res.status(200).json(cityRes);
+});
+
 module.exports = {
     searchQuery,
+    searchNear,
 };
