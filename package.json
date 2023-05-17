@@ -26,6 +26,7 @@
         "express-async-handler": "^1.2.0",
         "express-rate-limit": "^6.7.0",
         "google-auth-library": "^8.8.0",
+        "fuse.js": "^6.6.2",
         "jsonwebtoken": "^9.0.0",
         "mocha": "^10.2.0",
         "mongodb-memory-server": "^8.12.2",
