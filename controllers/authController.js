@@ -1,8 +1,8 @@
-const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const asyncHandler = require('express-async-handler');
 const generateTokensAndResponse = require('../utils/tokenGeneration');
+const User = require('../models/User');
 
 // @desc Login
 // @route POST /auth
@@ -25,7 +25,7 @@ const login = asyncHandler(async (req, res) => {
     if (!match) return res.status(401).json({ message: 'Unauthorized' });
 
     // Send accessToken containing username and roles
-    return generateTokensAndResponse(res,foundUser);
+    return generateTokensAndResponse(res, foundUser);
 });
 
 // @desc Refresh

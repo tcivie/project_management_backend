@@ -1,4 +1,5 @@
 const fs = require('fs');
+const SearchDict = require('./SearchDict');
 
 async function readLocalJSONFile(filePath) {
     try {
@@ -11,8 +12,9 @@ async function readLocalJSONFile(filePath) {
     }
 }
 
-class Countries {
+class Countries extends SearchDict {
     constructor() {
+        super();
         this.countries = {};
         this.countriesIDs = {};
         this.init();
@@ -33,25 +35,52 @@ class Countries {
                 region: country.region,
                 subRegion: country.subregion,
                 currency: country.currency,
+                emoji: country.emojiU,
             };
-            if (!(country.name in this.countries)) {
-                this.countries[country.name] = [];
+            if (!(country.name.toLowerCase() in this.countries)) {
+                this.countries[country.name.toLowerCase()] = [];
             }
-            this.countries[country.name].push(newCountry);
+            this.countries[country.name.toLowerCase()].push(newCountry);
             this.countriesIDs[country.id] = newCountry;
+            this.addToSearchDict(newCountry.name);
         });
+    }
+
+    search(query) {
+        const dataArray = [];
+        SearchDict.getSearchSplits(query).forEach((split) => {
+            if (split in this.searchDict) {
+                dataArray.push(...this.searchDict[split]);
+            }
+        });
+        const fuse = SearchDict.createFuse(dataArray);
+        // Perform a fuzzy search
+        const searchResults = fuse.search(query);
+        const countries = [];
+        searchResults.forEach((results) => {
+            if (countries.length < 5) {
+                const countriesByName = this.getCountryByName(results.item);
+                if (countriesByName) countries.push(...countriesByName);
+            }
+        });
+        const ret = [];
+        countries.forEach((c) => {
+            ret.push(c);
+        });
+        return ret;
     }
 
     // @desc    gets a list of country dicts by name
     getCountryByName(countryName) {
-        if (countryName in this.countries) return this.countries[countryName];
-        return null;
+        const cName = countryName.toLowerCase();
+        if (cName in this.countries) return this.countries[cName];
+        return [];
     }
 
     // @desc    gets a country dict by ID
     getCountryByID(countryID) {
         if (countryID in this.countriesIDs) return this.countriesIDs[countryID];
-        return null;
+        return [];
     }
 
     // @desc    gets a list of country dicts by region

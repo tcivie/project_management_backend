@@ -36,7 +36,7 @@ const registerUser = asyncHandler(async (req, res) => {
     const { username, password, email, nickname, profilePic } = req.body;
     const isSSO = req.isSSO || false;
     // Confirm data
-    if ((!username || !email) || (!isSSO && !password)) {
+    if (!username || !email || (!isSSO && !password)) {
         return res.status(400).json({ message: 'All fields are required' });
     }
     // Check for duplicate username
@@ -47,7 +47,9 @@ const registerUser = asyncHandler(async (req, res) => {
     // Generate a random password for SSO users
     const randomPassword = crypto.randomBytes(16).toString('hex');
     // Hash password
-    const hashedPwd = isSSO ? await bcrypt.hash(randomPassword, 10) : await bcrypt.hash(password, 10); // salt rounds
+    const hashedPwd = isSSO
+        ? await bcrypt.hash(randomPassword, 10)
+        : await bcrypt.hash(password, 10); // salt rounds
 
     // Create and store new user
     const user = await User.create({

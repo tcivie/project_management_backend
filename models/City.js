@@ -1,7 +1,7 @@
 const fs = require('fs');
-const Fuse = require('fuse.js');
 const countries = require('./Country');
 const arePointsClose = require('../middleware/Distance');
+const SearchDict = require('./SearchDict');
 
 async function readLocalJSONFile(filePath) {
     try {
@@ -14,21 +14,11 @@ async function readLocalJSONFile(filePath) {
     }
 }
 
-const options = {
-    shouldSort: true, // Enable sorting of search results
-    includeMatches: false, // Include matched characters in the search results
-    includeScore: true, // Include search scores in the search results
-    threshold: 0.3, // Set the match threshold to 0.4
-    location: 0, // Match at the start of the string
-    distance: 100, // Use the 'simple' distance algorithm
-    minMatchCharLength: 1, // Require at least 1 character to match
-};
-
-class Cities {
+class Cities extends SearchDict {
     constructor() {
+        super();
         this.cities = {};
         this.citiesIDs = {};
-        this.searchDict = {};
         this.init();
     }
 
@@ -51,67 +41,32 @@ class Cities {
 
             this.cities[city.name.toLowerCase()].push(newCity);
             this.citiesIDs[city.id] = newCity;
-            this.addToSearchDict(newCity);
+            this.addToSearchDict(newCity.name);
         });
     }
 
     search(query) {
         const dataArray = [];
-        Cities.getCitySearchSplits(query).forEach((split) => {
+        Cities.getSearchSplits(query).forEach((split) => {
             if (split in this.searchDict) {
                 dataArray.push(...this.searchDict[split]);
             }
         });
-        const fuse = new Fuse([...new Set(dataArray)], options);
+        const fuse = SearchDict.createFuse(dataArray);
         // Perform a fuzzy search
         const searchResults = fuse.search(query);
         const cities = [];
-        if (searchResults[0].score === 0) {
-            cities.push(...this.getCityByName(searchResults[0].item));
-        } else {
-            searchResults.forEach((results) => {
-                if (cities.length < 5) {
-                    cities.push(...this.getCityByName(results.item));
-                }
-            });
-        }
+        searchResults.forEach((results) => {
+            if (cities.length < 5) {
+                const citiesByName = this.getCityByName(results.item);
+                if (citiesByName) cities.push(...citiesByName);
+            }
+        });
         const ret = [];
         cities.forEach((c) => {
-            ret.push({
-                city: c.name,
-                country: `${c.country} - ${c.stateName}`,
-            });
+            ret.push(c);
         });
         return ret;
-    }
-
-    addSearchToDict(letters, cityName) {
-        if (letters in this.searchDict) {
-            if (!(cityName in this.searchDict[letters])) {
-                this.searchDict[letters].push(cityName);
-            }
-        } else {
-            this.searchDict[letters] = [cityName];
-        }
-    }
-
-    static getCitySearchSplits(cityName) {
-        const ret = [];
-        const splits = cityName.toLowerCase().split(' ');
-        splits.forEach((split) => {
-            for (let i = 0; i < split.length - 1; i++) {
-                const substring = split.substring(i, i + 2);
-                ret.push(substring);
-            }
-        });
-        return ret;
-    }
-
-    addToSearchDict(city) {
-        const cName = city.name.toLowerCase();
-        Cities.getCitySearchSplits(city.name).forEach((substring) => {
-            this.addSearchToDict(substring, cName);
-        });
     }
 
     // @desc    gets a list of cities dicts by name
