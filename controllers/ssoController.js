@@ -1,6 +1,7 @@
 const { OAuth2Client } = require('google-auth-library');
 const asyncHandler = require('express-async-handler');
 const User = require('../models/User');
+const crypto = require('crypto');
 const {registerUser} = require("./usersController");
 const generateTokensAndResponse = require("../utils/tokenGeneration");
 
@@ -19,11 +20,12 @@ const googleSignIn = asyncHandler(async (req, res) => {
 
     const foundUser = await User.findOne({ email: email }).exec();
     if (!foundUser) {
+        const randomPassword = crypto.randomBytes(16).toString('hex');
         // create new user
         req.isSSO = true;
         req.body = {
             username: email,
-            password: email,
+            password: randomPassword,
             name: name,
             email: email,
             picture: picture

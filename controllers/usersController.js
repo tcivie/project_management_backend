@@ -59,6 +59,7 @@ const registerUser = asyncHandler(async (req, res) => {
         // profilePic: profilePic, //TODO: Add profile pic to User model
     });
     if (user) {
+        await user.save();
         if (isSSO) {
             return user;
         } else {
