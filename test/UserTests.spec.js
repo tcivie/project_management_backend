@@ -2,11 +2,13 @@ require('dotenv').config();
 const mongoose = require('mongoose');
 const { describe, it, before, after, afterEach } = require('mocha');
 const { assert } = require('chai');
-const User = require('../models/User');
+
 const supertest = require('supertest');
 const jwt = require('jsonwebtoken');
 const app = require('../src/App');
 const { roleList } = require('../middleware/checkRoles');
+const User = require('../models/User');
+
 const request = supertest(app);
 
 before(async function () {
