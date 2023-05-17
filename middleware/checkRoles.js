@@ -26,7 +26,7 @@ const hasRoles = (...args) => {
 const hasAllRoles = (...args) => {
     return (req, res, next) => {
         args.forEach((arg) => {
-            if ((req.roles & arg) == 0)
+            if ((req.roles & arg) === 0)
                 return res
                     .status(403)
                     .json({ message: 'Insuffcient permissions.' });
@@ -44,15 +44,11 @@ const hasNoRoles = () => {
 
 const CanPerfomAction = () => {
     return (req, res, next) => {
-        console.log('req.user', req.user);
-        console.log('req.body.username', req.body.username);
         const isUserActionOnThemselves =
             req.user === req.body.username || req.body.username === undefined;
         if (isUserActionOnThemselves) {
-            console.log('isUserActionOnThemselves', isUserActionOnThemselves);
             next();
         } else {
-            console.log('req.roles', req.roles);
             const checkRolesMiddleware = hasRoles(
                 roleList.admin,
                 roleList.superAdmin,

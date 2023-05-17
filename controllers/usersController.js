@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const asyncHandler = require('express-async-handler');
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 
 // @desc    Get all users
 // @route   GET /api/users
@@ -32,9 +33,10 @@ const getUserById = asyncHandler(async (req, res) => {
 // @route   POST /api/users
 // @access  Public
 const registerUser = asyncHandler(async (req, res) => {
-    const { username, password, email, nickname } = req.body;
+    const { username, password, email, nickname, profilePic } = req.body;
+    const isSSO = req.isSSO || false;
     // Confirm data
-    if (!username || !password || !email) {
+    if ((!username || !email) || (!isSSO && !password)) {
         return res.status(400).json({ message: 'All fields are required' });
     }
     // Check for duplicate username
@@ -42,8 +44,10 @@ const registerUser = asyncHandler(async (req, res) => {
     if (duplicate) {
         return res.status(409).json({ message: 'Duplicate username' });
     }
+    // Generate a random password for SSO users
+    const randomPassword = crypto.randomBytes(16).toString('hex');
     // Hash password
-    const hashedPwd = await bcrypt.hash(password, 10); // salt rounds
+    const hashedPwd = isSSO ? await bcrypt.hash(randomPassword, 10) : await bcrypt.hash(password, 10); // salt rounds
 
     // Create and store new user
     const user = await User.create({
@@ -52,11 +56,15 @@ const registerUser = asyncHandler(async (req, res) => {
         password: hashedPwd,
         roles: 1,
         nickname: nickname ? nickname : username,
+        // profilePic: profilePic, //TODO: Add profile pic to User model
     });
-
     if (user) {
-        //created
-        res.status(201).json({ message: `New user ${username} created` });
+        if (isSSO) {
+            return user;
+        } else {
+            //created
+            res.status(201).json({ message: `New user ${username} created` });
+        }
     } else {
         res.status(400).json({ message: 'Invalid user data received' });
     }
@@ -97,7 +105,7 @@ const deleteUser = asyncHandler(async (req, res) => {
     if (!user) {
         return res.status(400).json({ message: 'User not found' });
     }
-    let reply = '';
+    let reply;
     if (isDelete) {
         const result = await user.deleteOne();
         reply = `Username ${result.username} with ID ${result._id} deleted`;

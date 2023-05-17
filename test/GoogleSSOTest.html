@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Google Sign-In Test</title>
+  <meta name="google-signin-client_id" content="52742900129-knrfhr5i59undpt03jet637c2lrcp9oi.apps.googleusercontent.com">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+<div id="isSignedIn"></div>
+<div id="g_id_onload"
+     data-client_id="52742900129-knrfhr5i59undpt03jet637c2lrcp9oi.apps.googleusercontent.com"
+     data-callback="handleCredentialResponse">
+</div>
+
+<div class="g_id_signin" data-type="standard"></div>
+
+<script>
+  function handleCredentialResponse(response) {
+    console.log("ID: " + response.credential);
+    // Here you should make the POST request to your server
+    fetch('http://localhost:3000/api/sso/google', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ token: response.credential }),
+    })
+            .then(response => response.json())
+            .then(data => {
+              console.log(data)
+              // change the isSignedIn div to show the user's email address and success message
+                document.getElementById("isSignedIn").innerHTML = "You are signed in as: " + data.UserInfo.username;
+            })
+            .catch((error) => {
+              console.error('Error:', error);
+            });
+  }
+</script>
+</body>
+</html>

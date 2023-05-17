@@ -2,6 +2,7 @@ const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const asyncHandler = require('express-async-handler');
+const generateTokensAndResponse = require('../utils/tokenGeneration');
 
 // @desc Login
 // @route POST /auth
@@ -23,34 +24,8 @@ const login = asyncHandler(async (req, res) => {
 
     if (!match) return res.status(401).json({ message: 'Unauthorized' });
 
-    const accessToken = jwt.sign(
-        {
-            UserInfo: {
-                username: foundUser.username,
-                roles: foundUser.roles,
-                active: foundUser.active,
-            },
-        },
-        process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: '15m' },
-    );
-
-    const refreshToken = jwt.sign(
-        { username: foundUser.username },
-        process.env.REFRESH_TOKEN_SECRET,
-        { expiresIn: '7d' },
-    );
-
-    // Create secure cookie with refresh token
-    res.cookie('jwt', refreshToken, {
-        httpOnly: true, //accessible only by web server
-        secure: true, //https TODO:Dont forget to change back to true
-        sameSite: 'None', //cross-site cookie
-        maxAge: 7 * 24 * 60 * 60 * 1000, //cookie expiry: set to match rT
-    });
-
     // Send accessToken containing username and roles
-    return res.json({ accessToken });
+    return generateTokensAndResponse(res,foundUser);
 });
 
 // @desc Refresh
@@ -58,7 +33,6 @@ const login = asyncHandler(async (req, res) => {
 // @access Public - because access token has expired
 const refresh = (req, res) => {
     const cookies = req.cookies;
-    console.log(`Cookies: ${cookies?.jwt}`);
     if (!cookies?.jwt) return res.status(401).json({ message: 'Unauthorized' });
 
     const refreshToken = cookies.jwt;
@@ -72,7 +46,6 @@ const refresh = (req, res) => {
             const foundUser = await User.findOne({
                 username: decoded.username,
             }).exec();
-            console.log(`FoundUser: ${foundUser}`);
             if (!foundUser)
                 return res.status(401).json({ message: 'Unauthorized' });
 
