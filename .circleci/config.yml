@@ -30,12 +30,21 @@ jobs:
       - run:
           name: Run Linter
           command: npm run lint
+  deploy:
+    executor:
+      name: node/default
+    steps:
       - run:
           name: CI Deployment
           command: curl "https://api.render.com/deploy/srv-cgfhclkeoogqfc5emsqg?key=oKdjsMSDupc"
 
 workflows:
-  example-workflow:
+  build-test-deploy:
     jobs:
       - install-node
-      - cicd-tests-and-lint
+      - cicd-tests-and-lint:
+          requires:
+              - install-node
+      - deploy:
+          requires:
+              - cicd-tests-and-lint
