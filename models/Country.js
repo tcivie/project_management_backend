@@ -58,7 +58,7 @@ class Countries extends SearchDict {
         const searchResults = fuse.search(query);
         const countries = [];
         searchResults.forEach((results) => {
-            if (countries.length < 5) {
+            if (countries.length < 5 && results.score < 0.3) {
                 const countriesByName = this.getCountryByName(results.item);
                 if (countriesByName) countries.push(...countriesByName);
             }

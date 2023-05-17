@@ -12,6 +12,10 @@ function dictCopy(ogDict) {
 }
 const searchQuery = asyncHandler(async (req, res) => {
     const { query } = req.body;
+    if (!query) return res.status(403).json({ error: 'Missing query.' });
+    if (query.length < 3) {
+        return res.status(403).json({ error: 'Query too short' });
+    }
     const cityRes = cities.search(query);
     const countryRes = countries.search(query);
     if (!cityRes && !countryRes) {

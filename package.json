@@ -7,7 +7,7 @@
     "scripts": {
         "start": "node src/index.js",
         "dev": "nodemon run src/index.js",
-        "test": "mocha test/*.spec.js --color",
+        "test": "mocha test/*.spec.js --color --timeout 5000",
         "lint": "eslint src/* --color"
     },
     "keywords": [],

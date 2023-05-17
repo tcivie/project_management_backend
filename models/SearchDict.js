@@ -4,7 +4,7 @@ const options = {
     shouldSort: true, // Enable sorting of search results
     includeMatches: false, // Include matched characters in the search results
     includeScore: true, // Include search scores in the search results
-    threshold: 0.4, // Set the match threshold to 0.4
+    threshold: 0.3, // Set the match threshold to 0.4
     location: 0, // Match at the start of the string
     distance: 100, // Use the 'simple' distance algorithm
     minMatchCharLength: 1, // Require at least 1 character to match
