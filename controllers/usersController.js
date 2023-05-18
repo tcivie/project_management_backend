@@ -40,9 +40,13 @@ const registerUser = asyncHandler(async (req, res) => {
         return res.status(400).json({ message: 'All fields are required' });
     }
     // Check for duplicate username
-    const duplicate = await User.findOne({ username }).lean().exec();
+    let duplicate = await User.findOne({ username }).lean().exec();
     if (duplicate) {
-        return res.status(409).json({ message: 'Duplicate username' });
+        return res.status(409).json({ message: 'Duplicate Username' });
+    }
+    duplicate = await User.findOne({ email }).lean().exec();
+    if (duplicate) {
+        return res.status(409).json({ message: 'Duplicate Email' });
     }
     // Generate a random password for SSO users
     const randomPassword = crypto.randomBytes(16).toString('hex');
@@ -64,10 +68,9 @@ const registerUser = asyncHandler(async (req, res) => {
         await user.save();
         if (isSSO) {
             return user;
-        } else {
-            //created
-            res.status(201).json({ message: `New user ${username} created` });
         }
+        // created
+        res.status(201).json({ message: `New user ${username} created` });
     } else {
         res.status(400).json({ message: 'Invalid user data received' });
     }
