@@ -15,12 +15,16 @@ router.use(verifyJWT);
 
 router
     .route('/')
-    .get(
-        hasRoles(roleList.superAdmin, roleList.admin),
-        usersController.getAllUsers,
-    )
+    .get(CanPerfomAction(), usersController.getMyDetails)
     .post(hasNoRoles(), usersController.registerUser)
     .patch(CanPerfomAction(), usersController.updateUser)
     .delete(CanPerfomAction(), usersController.deleteUser);
+
+router
+    .route('/all')
+    .get(
+        hasRoles(roleList.superAdmin, roleList.admin),
+        usersController.getAllUsers,
+    );
 
 module.exports = router;
