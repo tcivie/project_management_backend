@@ -60,7 +60,7 @@ describe('POST /api/users', function () {
         });
 
         assert.equal(res.status, 409);
-        assert.deepEqual(res.body, { message: 'Duplicate username' });
+        assert.deepEqual(res.body, { message: 'Duplicate Username' });
     });
 });
 
