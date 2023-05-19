@@ -27,8 +27,8 @@ class Countries extends SearchDict {
                 name: country.name,
                 id: country.id,
                 location: [
-                    parseFloat(country.longitude),
                     parseFloat(country.latitude),
+                    parseFloat(country.longitude),
                 ],
                 code: country.iso3,
                 captial: country.capital,
