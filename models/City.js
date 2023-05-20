@@ -34,6 +34,7 @@ class Cities extends SearchDict {
                 ],
                 country: city.country_name,
                 stateName: city.state_name,
+                wikiDataId: city.wikiDataId,
             };
             if (!(city.name.toLowerCase() in this.cities)) {
                 this.cities[city.name.toLowerCase()] = [];
@@ -97,15 +98,13 @@ class Cities extends SearchDict {
     }
 
     getCitiesCloseToPoint(latitude, longitude, distance) {
-        return Object.values(this.citiesIDs).filter((value) =>
-            arePointsClose(
-                latitude,
-                longitude,
-                value.location[0],
-                value.location[1],
-                distance,
-            ),
-        );
+        return Object.values(this.citiesIDs).filter((value) => arePointsClose(
+            latitude,
+            longitude,
+            value.location[0],
+            value.location[1],
+            distance,
+        ));
     }
 
     getCitiesCloseToLocation(location, distance) {
