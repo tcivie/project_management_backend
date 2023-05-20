@@ -36,6 +36,7 @@ class Countries extends SearchDict {
                 subRegion: country.subregion,
                 currency: country.currency,
                 emoji: country.emojiU,
+                gmtOffset: country.timezones[0].gmtOffset,
             };
             if (!(country.name.toLowerCase() in this.countries)) {
                 this.countries[country.name.toLowerCase()] = [];
