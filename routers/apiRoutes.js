@@ -7,5 +7,6 @@ router.use('/auth', require('./authRoutes'));
 router.use('/users', require('./userRoutes'));
 router.use('/search', require('./searchRoutes'));
 router.use('/chat', require('./chatRoutes'));
+router.use('/cors', require('./corsRoutes'));
 
 module.exports = router;
