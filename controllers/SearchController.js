@@ -58,8 +58,8 @@ const searchNear = asyncHandler(async (req, res) => {
     let cityRes = cities.getCitiesCloseToLocation(point, radius);
     if (!cityRes) return res.status(200).json([]);
     // eslint-disable-next-line max-len
-    cityRes.sort((city1, city2) => distanceBetween(city1.location[0], city1.location[1], point[0], point[1])
-    - distanceBetween(city2.location[0], city2.location[1], point[0], point[1]));
+    cityRes.sort((city1, city2) => distanceBetween(city1.location[1], city1.location[0], point[1], point[0])
+    - distanceBetween(city2.location[1], city2.location[0], point[1], point[0]));
     if (limit) cityRes = cityRes.slice(0, limit);
     return res.status(200).json(cityRes);
 });
