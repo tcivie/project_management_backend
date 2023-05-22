@@ -117,11 +117,11 @@ class Languages {
         const combinedDict = {};
 
         Object.keys(this.english).forEach((key) => {
-            combinedDict[key] = [
-                this.english[key],
-                this.native[key],
-                this.languageEmojis[key],
-            ];
+            combinedDict[key] = {
+                nameInEnglish: this.english[key],
+                nameInNative: this.native[key],
+                emoji: this.languageEmojis[key],
+            };
         });
         return combinedDict;
     }

@@ -6,7 +6,9 @@ const languages = require('../models/Languages');
 // @route GET /api/chat/languages
 // @access Public
 
-const getLanguages = asyncHandler(async (req, res) => res.status(200).json(languages.get_all()));
+const getLanguages = asyncHandler(async (req, res) => {
+    return res.status(200).json(languages.get_all())
+});
 
 module.exports = {
     getLanguages,
