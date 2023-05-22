@@ -1,6 +1,6 @@
 const fs = require('fs');
 const countries = require('./Country');
-const arePointsClose = require('../middleware/Distance');
+const { arePointsClose } = require('../middleware/Distance');
 const SearchDict = require('./SearchDict');
 
 async function readLocalJSONFile(filePath) {

@@ -19,6 +19,7 @@ class SearchDict {
         return new Fuse([...new Set(dataArray)], options);
     }
 
+    // eslint-disable-next-line no-unused-vars
     search(query) {
         throw new Error(
             'Abstract function must be implemented in derived class',
