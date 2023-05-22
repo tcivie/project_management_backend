@@ -126,5 +126,4 @@ class Languages {
         return combinedDict;
     }
 }
-console.log(new Languages().get_all());
 module.exports = new Languages();

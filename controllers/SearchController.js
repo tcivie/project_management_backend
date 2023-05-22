@@ -15,8 +15,8 @@ const searchQuery = asyncHandler(async (req, res) => {
     if (query.length < 3) {
         return res.status(403).json({ error: 'Query too short' });
     }
-    const cityRes = cities.search(query);
-    const countryRes = countries.search(query);
+    const cityRes = cities.search(query.trim());
+    const countryRes = countries.search(query.trim());
     if (!cityRes && !countryRes) {
         return res.status(404).json({ message: 'No results found.' });
     }
@@ -29,7 +29,7 @@ const searchQuery = asyncHandler(async (req, res) => {
         });
     });
     cityCountries = [...cityCountries];
-    for (let i = 0; i < cityCountries.length; i++) {
+    for (let i = 0; i < cityCountries.length; i += 1) {
         cityCountries[i] = dictCopy(cityCountries[i]);
         cityCountries[i].cities = [];
         cityRes.forEach((city) => {
