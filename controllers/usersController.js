@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 
 // @desc    Get all users
-// @route   GET /api/users
+// @route   GET /api/users/all
 // @access  Private/Admin
 const getAllUsers = asyncHandler(async (req, res) => {
     const users = await User.find().select('-password').lean();
@@ -18,15 +18,30 @@ const getAllUsers = asyncHandler(async (req, res) => {
 // @desc    Get user by id
 // @route   GET /api/users
 // @access  Private/Admin
-const getUserById = asyncHandler(async (req, res) => {
-    const user = await User.findById(req.params.id)
+// const getUserById = asyncHandler(async (req, res) => {
+//     const user = await User.findById(req.params.id)
+//         .select('-password')
+//         .lean()
+//         .exec();
+//     if (!user) {
+//         return res.status(400).json({ message: 'User not found' });
+//     }
+//     res.json(user);
+// });
+
+// @desc    Get logged user details
+// @route   GET /api/users
+// @access  Private/Admin
+const getMyDetails = asyncHandler(async (req, res) => {
+    console.log(req.user);
+    const user = await User.findOne({ username: req.user })
         .select('-password')
         .lean()
         .exec();
     if (!user) {
         return res.status(400).json({ message: 'User not found' });
     }
-    res.json(user);
+    res.status(200).json(user);
 });
 
 // @desc    Register user
@@ -125,7 +140,7 @@ const deleteUser = asyncHandler(async (req, res) => {
 
 module.exports = {
     getAllUsers,
-    getUserById,
+    getMyDetails,
     registerUser,
     updateUser,
     deleteUser,

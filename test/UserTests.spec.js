@@ -64,15 +64,15 @@ describe('POST /api/users', function () {
     });
 });
 
-describe('GET /api/users', function () {
+describe('GET /api/users/all', function () {
     it('should return 403 if not authorized (no JWT or invalid JWT)', async function () {
         // Test with no JWT
-        let res = await request.get('/api/users');
+        let res = await request.get('/api/users/all');
         assert.equal(res.status, 403);
 
         // Test with invalid JWT
         res = await request
-            .get('/api/users')
+            .get('/api/users/all')
             .set('Authorization', 'Bearer some.invalid.token');
         assert.equal(res.status, 403);
     });
@@ -81,7 +81,7 @@ describe('GET /api/users', function () {
         // Test with a JWT for a user with insufficient roles (e.g., a regular user)
         const token = generateTokenWithRoles(roleList.user);
         const res = await request
-            .get('/api/users')
+            .get('/api/users/all')
             .set('Authorization', `Bearer ${token}`);
 
         assert.equal(res.status, 403);
@@ -91,7 +91,7 @@ describe('GET /api/users', function () {
         // Test with a JWT for a user with valid roles (e.g., an admin or superAdmin)
         const token = generateTokenWithRoles(roleList.admin);
         const res = await request
-            .get('/api/users')
+            .get('/api/users/all')
             .set('Authorization', `Bearer ${token}`);
 
         assert.equal(res.status, 200);

@@ -54,7 +54,7 @@ workflows:
       - install-node
       - cicd-tests-and-lint:
           requires:
-              - install-node
+            - install-node
       - deploy:
           requires:
-              - cicd-tests-and-lint
+            - cicd-tests-and-lint

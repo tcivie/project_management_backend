@@ -30,8 +30,8 @@ const generateTokensAndResponse = async (res, user) => {
     return res.json({
         accessToken: accessToken,
         UserInfo: {
-            username: user.username
-        }
+            username: user.username,
+        },
     });
 };
 
