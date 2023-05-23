@@ -138,7 +138,7 @@ const deleteUser = asyncHandler(async (req, res) => {
         await user.save();
         reply = `Username ${user.username} with ID ${user._id} deactivated`;
     }
-    res.status(200).json(reply);
+    return res.status(200).json(reply);
 });
 
 module.exports = {
