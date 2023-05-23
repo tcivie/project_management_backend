@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+
 const generateTokensAndResponse = async (res, user) => {
     const accessToken = jwt.sign(
         {
@@ -21,14 +22,14 @@ const generateTokensAndResponse = async (res, user) => {
     // Create secure cookie with refresh token
     res.cookie('jwt', refreshToken, {
         httpOnly: true,
-        secure: true,
-        sameSite: 'None',
+        secure: false,
+        sameSite: 'Lax',
         maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
     // Send accessToken containing username and roles
     return res.json({
-        accessToken: accessToken,
+        accessToken,
         UserInfo: {
             username: user.username,
         },
