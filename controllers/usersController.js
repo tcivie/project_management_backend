@@ -1,7 +1,7 @@
-const User = require('../models/User');
 const asyncHandler = require('express-async-handler');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
+const User = require('../models/User');
 
 // @desc    Get all users
 // @route   GET /api/users/all
@@ -10,9 +10,8 @@ const getAllUsers = asyncHandler(async (req, res) => {
     const users = await User.find().select('-password').lean();
     if (!users?.length) {
         return res.status(400).json({ message: 'No users found' });
-    } else {
-        res.status(200).json(users);
     }
+    res.status(200).json(users);
 });
 
 // @desc    Get user by id
@@ -48,7 +47,9 @@ const getMyDetails = asyncHandler(async (req, res) => {
 // @route   POST /api/users
 // @access  Public
 const registerUser = asyncHandler(async (req, res) => {
-    const { username, password, email, nickname, profilePic } = req.body;
+    const {
+        username, password, email, nickname, profilePic,
+    } = req.body;
     const isSSO = req.isSSO || false;
     // Confirm data
     if (!username || !email || (!isSSO && !password)) {
@@ -72,11 +73,11 @@ const registerUser = asyncHandler(async (req, res) => {
 
     // Create and store new user
     const user = await User.create({
-        username: username,
-        email: email,
+        username,
+        email,
         password: hashedPwd,
         roles: 1,
-        nickname: nickname ? nickname : username,
+        nickname: nickname || username,
         // profilePic: profilePic, //TODO: Add profile pic to User model
     });
     if (user) {
@@ -95,8 +96,10 @@ const registerUser = asyncHandler(async (req, res) => {
 // @route   PUT /api/users
 // @access  Private/Admin
 const updateUser = asyncHandler(async (req, res) => {
-    const { email, username, password, nickname } = req.body;
-    const user = await User.findOne({ username: username }).exec();
+    const {
+        email, username, password, nickname,
+    } = req.body;
+    const user = await User.findOne({ username }).exec();
     if (!user) {
         return res.status(400).json({ message: 'User not found' });
     }
@@ -135,7 +138,7 @@ const deleteUser = asyncHandler(async (req, res) => {
         await user.save();
         reply = `Username ${user.username} with ID ${user._id} deactivated`;
     }
-    res.status(200).json(reply);
+    return res.status(200).json(reply);
 });
 
 module.exports = {

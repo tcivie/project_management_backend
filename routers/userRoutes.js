@@ -3,10 +3,10 @@ const express = require('express');
 const router = express.Router();
 const usersController = require('../controllers/usersController');
 const verifyJWT = require('../middleware/verifyJWT');
-const checkActivity = require('../middleware/checkActivity');
+// const checkActivity = require('../middleware/checkActivity');
 const {
     roleList,
-    hasAllRoles,
+    // hasAllRoles,
     hasRoles,
     hasNoRoles,
     CanPerfomAction,
