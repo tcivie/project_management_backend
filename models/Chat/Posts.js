@@ -1,0 +1,102 @@
+const mongoose = require('mongoose');
+const { Mongoose } = require('mongoose');
+
+const postSchema = new mongoose.Schema({
+    language: {
+        type: String,
+        required: true,
+        immutable: true,
+    },
+    city: {
+        type: Mongoose.Schema.Types.ObjectId,
+        ref: 'City',
+        required: true,
+        immutable: true,
+    },
+    userId: {
+        type: Mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+    },
+    title: {
+        type: String,
+        required: true,
+    },
+    content: {
+        type: String,
+    },
+    views: {
+        type: Number,
+        required: false,
+        default: 0,
+    },
+    helpful: {
+        type: Number,
+        required: false,
+        default: 0,
+    },
+    comments: {
+        type: Number,
+        required: false,
+        default: 0,
+    },
+    liveUsers: {
+        type: Number,
+        required: false,
+        default: 0,
+    },
+    tags: {
+        type: [String],
+        required: false,
+        default: [],
+    },
+}, { timestamps: true });
+
+postSchema.index({ city: 1 }, { unique: false });
+postSchema.index({ language: 1 }, { unique: false });
+
+postSchema.methods.clickHelpful = async function () {
+    this.helpful++;
+};
+
+postSchema.methods.unClickHelpful = async function () {
+    this.helpful--;
+};
+
+postSchema.methods.comment = async function () {
+    this.comments++;
+};
+
+postSchema.methods.view = async function () {
+    this.views++;
+};
+
+postSchema.methods.userLogged = async function () {
+    this.liveUsers++;
+};
+
+postSchema.methods.userLoggedOut = async function () {
+    this.liveUsers--;
+};
+
+postSchema.statics.getPosts = async function (cityId) {
+    this.find({ city: cityId })
+        .then((data) => data)
+        .catch((err) => err);
+};
+
+postSchema.statics.create = async function ({
+    language, city, userId, title, content, tags,
+}) {
+    const post = new this({
+        language,
+        city,
+        userId,
+        title,
+        content,
+        tags,
+    });
+    return post.save();
+};
+
+module.exports = mongoose.model('Post', postSchema);
