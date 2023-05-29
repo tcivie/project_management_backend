@@ -40,9 +40,40 @@ const getUsersInChat = asyncHandler(async (req, res) => {
         .catch((err) => res.status(500).json({ error: err }));
 });
 
+// @desc creates a post
+// @route POST /api/chat/posts
+// @access Public
+const createPost = asyncHandler(async (req, res) => {
+    const {
+        language, city, userId, title, content, tags,
+    } = req.body;
+    messages.create({
+        language,
+        city,
+        userId,
+        title,
+        content,
+        tags,
+    })
+        .then((data) => res.status(200).json(data))
+        .catch((err) => res.status(500).json({ error: err }));
+});
+
+// @desc gets posts
+// @route GET /api/chat/posts/:cityId
+// @access Public
+const getPosts = asyncHandler(async (req, res) => {
+    const { cityId } = req.params;
+    messages.getPosts(cityId)
+        .then((data) => res.status(200).json(data))
+        .catch((err) => res.status(500).json({ error: err }));
+});
+
 module.exports = {
     getLanguages,
     getChatHistory,
     sendMessage,
     getUsersInChat,
+    createPost,
+    getPosts,
 };
