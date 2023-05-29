@@ -55,30 +55,6 @@ const postSchema = new mongoose.Schema({
 postSchema.index({ city: 1 }, { unique: false });
 postSchema.index({ language: 1 }, { unique: false });
 
-postSchema.methods.clickHelpful = async function () {
-    this.helpful++;
-};
-
-postSchema.methods.unClickHelpful = async function () {
-    this.helpful--;
-};
-
-postSchema.methods.comment = async function () {
-    this.comments++;
-};
-
-postSchema.methods.view = async function () {
-    this.views++;
-};
-
-postSchema.methods.userLogged = async function () {
-    this.liveUsers++;
-};
-
-postSchema.methods.userLoggedOut = async function () {
-    this.liveUsers--;
-};
-
 postSchema.statics.getPosts = async function (cityId) {
     this.find({ city: cityId })
         .then((data) => data)
