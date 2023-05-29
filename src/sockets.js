@@ -1,4 +1,7 @@
 const socketIO = require('socket.io');
+const verifySocketJWT = require('../chat/verifySocketJWT');
+const { join, leave } = require('../chat/chatActions/sessionHandler');
+const newMessage = require('../chat/chatActions/messageHandler');
 
 function socketSetup(server) {
     const io = socketIO(server, {
@@ -8,34 +11,14 @@ function socketSetup(server) {
         },
     });
 
-    io.use((socket, next) => {
-        // Middleware logic goes here
-        // If everything is okay, call next();
-        // otherwise, call next(new Error('An error occurred.'));
-        next();
-    });
+    io.use(verifySocketJWT); // Use the middleware to verify the JWT
 
     io.on('connection', (socket) => {
-        console.log('New client connected');
+        socket.on('join', (postId) => join(socket, postId));
 
-        // Handle join event
-        socket.on('join', (postId) => {
-            socket.join(postId);
-            console.log(`Client joined room ${postId}`);
-        });
+        socket.on('newMessage', (data) => newMessage(socket, io, data));
 
-        // Handle new message event
-        socket.on('newMessage', (data) => {
-            console.log(`New message in room ${data.postId}`);
-            // Emit the message to everyone in the room
-            io.to(data.postId).emit('messageReceived', data.message);
-        });
-
-        socket.on('disconnect', () => {
-            console.log('Client disconnected');
-        });
-
-        // Additional event handlers go here
+        socket.on('disconnect', () => leave(socket));
     });
 
     return io;

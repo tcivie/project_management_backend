@@ -9,7 +9,7 @@
 
       socket.on('connect', () => {
         console.log('Connected!');
-        socket.emit('join', '123'); // Replace '123' with your actual postId
+        socket.emit('joinHandler', '123'); // Replace '123' with your actual postId
       });
 
       socket.on('messageReceived', (message) => {
