@@ -1,21 +1,27 @@
+require('dotenv').config();
 const mongoose = require('mongoose');
 const http = require('http');
 const app = require('./App');
 const socketSetup = require('./sockets');
 
-const port = process.env.port || 3000;
+const appPort = process.env.PORT || 3000;
+const socketPort = process.env.SOCKETPORT || 4000; // The port for the Socket.IO server
 
-const server = http.createServer(app);
+const appServer = http.createServer(app);
+const socketServer = http.createServer(); // Create a new server for Socket.IO
 
 mongoose
     .connect(process.env.DBURL)
     .then(() => {
-        server.listen(port, () => {
-            console.log(`Connected to DB and running at port ${port}`);
+        appServer.listen(appPort, () => {
+            console.log(`App running at port ${appPort}`);
+        });
+        socketServer.listen(socketPort, () => { // Start the Socket.IO server
+            console.log(`Socket.IO server running at port ${socketPort}`);
         });
     })
     .catch((error) => {
         console.log(error);
     });
 
-socketSetup(server);
+socketSetup(socketServer); // Pass the socketServer to the socketSetup function

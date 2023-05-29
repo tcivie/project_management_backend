@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Socket.IO Test</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+      const socket = io('http://localhost:4005'); // Replace with your Socket.IO server's address
+
+      socket.on('connect', () => {
+        console.log('Connected!');
+        socket.emit('join', '123'); // Replace '123' with your actual postId
+      });
+
+      socket.on('messageReceived', (message) => {
+        console.log('Message:', message);
+      });
+
+      // Send a message when the form is submitted
+      document.getElementById('messageForm').addEventListener('submit', (event) => {
+        event.preventDefault();
+
+        const message = document.getElementById('messageInput').value;
+        socket.emit('newMessage', { postId: '123', message: message }); // Replace '123' with your actual postId
+      });
+    });
+  </script>
+</head>
+<body>
+<h1>Socket.IO Test</h1>
+
+<form id="messageForm">
+  <input type="text" id="messageInput" placeholder="Type a message" />
+  <button type="submit">Send</button>
+</form>
+</body>
+</html>
