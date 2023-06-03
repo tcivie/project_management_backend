@@ -2,7 +2,7 @@ const asyncHandler = require('express-async-handler');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const User = require('../models/User');
-const Post = require('../models/Post');
+const Post = require('./models/Post');
 const Comment = require('../models/Comment');
 
 // @desc    Get all users
@@ -71,21 +71,33 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Update user
-// @route   PUT /api/users
-// @access  Private/Admin
+// @desc    Update user information and account security
+// @route   PATCH /api/users
+// @access  Private
 const updateUser = asyncHandler(async (req, res) => {
-  const { email, username, password, nickname } = req.body;
+  const { email, username, password, nickname, currentPassword, newPassword } = req.body;
   const user = await User.findOne({ username }).exec();
+
   if (!user) {
     return res.status(400).json({ message: 'User not found' });
   }
+
+  // Update personal information fields
   user.email = email || user.email;
   user.nickname = nickname || user.nickname;
-  if (password) {
-    user.password = await bcrypt.hash(password, 10);
+
+  // Update account security fields if provided
+  if (currentPassword && newPassword) {
+    const passwordMatch = await user.validPassword(currentPassword);
+    if (!passwordMatch) {
+      return res.status(401).json({ message: 'Incorrect current password' });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
   }
+
   const updatedUser = await user.save();
+
   res.status(200).json({
     _id: updatedUser._id,
     email: updatedUser.email,

@@ -60,10 +60,13 @@ const userSchema = new mongoose.Schema(
 userSchema.index({ username: 1 }, { unique: true });
 userSchema.index({ email: 1 }, { unique: true });
 
-userSchema.methods.hashPassword = async function () {
-  const saltRounds = 10;
-  this.password = await bcrypt.hash(this.password, saltRounds);
-};
+userSchema.pre('save', async function (next) {
+  if (this.isModified('password')) {
+    const saltRounds = 10;
+    this.password = await bcrypt.hash(this.password, saltRounds);
+  }
+  next();
+});
 
 userSchema.methods.validPassword = async function (password) {
   return bcrypt.compare(password, this.password);
