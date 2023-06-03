@@ -52,7 +52,7 @@ const createPost = asyncHandler(async (req, res) => {
     const {
         language, city, userId, title, content, tags,
     } = req.body;
-    console.log(req.body);
+    const postImage = req.file.path;
     messages.create({
         language,
         city,
@@ -60,6 +60,7 @@ const createPost = asyncHandler(async (req, res) => {
         title,
         content,
         tags,
+        postImage,
     })
         .then((data) => res.status(200).json(data))
         .catch((err) => res.status(500).json({ error: err }));
