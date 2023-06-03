@@ -12,12 +12,22 @@ const app = express();
 
 app.use(logger);
 
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:3001',
+    credentials: true,
+}));
 
 // configure body-parser middleware
 app.use(cookieParser());
-app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use((req, res, next) => {
+    if (req.is('json')) {
+        bodyParser.json()(req, res, next);
+    } else {
+        next();
+    }
+});
 
 // api routes
 app.use('/api', apiRoutes);

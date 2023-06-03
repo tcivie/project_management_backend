@@ -1,4 +1,5 @@
 const multer = require('multer');
+const { extname } = require('path');
 
 // Configure multer storage
 const storage = multer.diskStorage({
@@ -6,7 +7,7 @@ const storage = multer.diskStorage({
         cb(null, './uploads/');
     },
     filename(req, file, cb) {
-        cb(null, new Date().toISOString() + file.originalname);
+        cb(null, Date.now() + extname(file.originalname)); // Rename file
     },
 });
 
@@ -29,4 +30,12 @@ const upload = multer({
     fileFilter,
 });
 
-module.exports = upload;
+const uploadMultiple = multer({
+    storage,
+    limits: {
+        fileSize: 1024 * 1024 * 5,
+    },
+    fileFilter,
+}).array('images', 5);
+
+module.exports = { upload, uploadMultiple };

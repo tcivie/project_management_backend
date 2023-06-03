@@ -1,20 +1,19 @@
-const mongoose = require('mongoose');
-const { Mongoose } = require('mongoose');
+const { Schema, model } = require('mongoose');
+const City = require('../City');
 
-const postSchema = new mongoose.Schema({
+const postSchema = new Schema({
     language: {
         type: String,
         required: true,
         immutable: true,
     },
     city: {
-        type: Mongoose.Schema.Types.ObjectId,
-        ref: 'City',
+        type: Number,
         required: true,
         immutable: true,
     },
     userId: {
-        type: Mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: 'User',
         required: true,
     },
@@ -50,6 +49,11 @@ const postSchema = new mongoose.Schema({
         required: false,
         default: [],
     },
+    postImages: {
+        type: [String],
+        required: false,
+        default: [],
+    },
 }, { timestamps: true });
 
 postSchema.index({ city: 1 }, { unique: false });
@@ -62,17 +66,21 @@ postSchema.statics.getPosts = async function (cityId) {
 };
 
 postSchema.statics.create = async function ({
-    language, city, userId, title, content, tags,
+    language, city, userId, title, content, tags, postImages,
 }) {
-    const post = new this({
-        language,
-        city,
-        userId,
-        title,
-        content,
-        tags,
-    });
-    return post.save();
+    if (City.getCityByID(city)) {
+        const post = new this({
+            language,
+            city,
+            userId,
+            title,
+            content,
+            tags,
+            postImages,
+        });
+        return post.save();
+    }
+    return null;
 };
 
 postSchema.statics.getPostsByLanguage = async function (cityId, language) {
@@ -81,4 +89,4 @@ postSchema.statics.getPostsByLanguage = async function (cityId, language) {
         .catch((err) => err);
 };
 
-module.exports = mongoose.model('Post', postSchema);
+module.exports = model('Post', postSchema);

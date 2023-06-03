@@ -1,5 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const mongoose = require('mongoose');
+const posts = require('../models/Chat/Posts');
 const messages = require('../models/Chat/Messages');
 const languages = require('../models/Languages');
 
@@ -52,15 +53,15 @@ const createPost = asyncHandler(async (req, res) => {
     const {
         language, city, userId, title, content, tags,
     } = req.body;
-    const postImage = req.file.path;
-    messages.create({
+    const postImages = req?.files ? req.files.map((file) => file.path) : [];
+    posts.create({
         language,
         city,
         userId,
         title,
         content,
         tags,
-        postImage,
+        postImages,
     })
         .then((data) => res.status(200).json(data))
         .catch((err) => res.status(500).json({ error: err }));
@@ -72,7 +73,7 @@ const createPost = asyncHandler(async (req, res) => {
 const getPosts = asyncHandler(async (req, res) => {
     console.log('getPosts');
     const { cityId } = req.params;
-    messages.find({ city: cityId })
+    posts.find({ city: cityId })
         .then((data) => {
             console.log(data);
             res.status(200).json(data);
@@ -86,7 +87,7 @@ const getPosts = asyncHandler(async (req, res) => {
 const getPostsByLanguage = asyncHandler(async (req, res) => {
     console.log('getPostsByLanguage');
     const { cityId, language } = req.params;
-    messages.find({ city: cityId, language })
+    posts.find({ city: cityId, language })
         .then((data) => {
             console.log(data);
             res.status(200).json(data);
