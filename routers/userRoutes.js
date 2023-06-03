@@ -15,6 +15,9 @@ const {
 router.use(verifyJWT);
 
 router
+    .route('/:id')
+    .get(usersController.getUserById);
+router
     .route('/')
     .get(CanPerfomAction(), usersController.getMyDetails)
     .post(hasNoRoles(), usersController.registerUser)

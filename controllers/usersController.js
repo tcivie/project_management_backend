@@ -15,18 +15,18 @@ const getAllUsers = asyncHandler(async (req, res) => {
 });
 
 // @desc    Get user by id
-// @route   GET /api/users
+// @route   GET /api/users/:id
 // @access  Private/Admin
-// const getUserById = asyncHandler(async (req, res) => {
-//     const user = await User.findById(req.params.id)
-//         .select('-password')
-//         .lean()
-//         .exec();
-//     if (!user) {
-//         return res.status(400).json({ message: 'User not found' });
-//     }
-//     res.json(user);
-// });
+const getUserById = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.params.id)
+        .select('-password')
+        .lean()
+        .exec();
+    if (!user) {
+        return res.status(400).json({ message: 'User not found' });
+    }
+    res.json(user);
+});
 
 // @desc    Get logged user details
 // @route   GET /api/users
@@ -147,4 +147,5 @@ module.exports = {
     registerUser,
     updateUser,
     deleteUser,
+    getUserById,
 };
