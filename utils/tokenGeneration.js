@@ -4,6 +4,7 @@ const generateTokensAndResponse = async (res, user) => {
     const accessToken = jwt.sign(
         {
             UserInfo: {
+                id: user._id,
                 username: user.username,
                 roles: user.roles,
                 active: user.active,
@@ -31,7 +32,10 @@ const generateTokensAndResponse = async (res, user) => {
     return res.json({
         accessToken,
         UserInfo: {
+            id: user._id,
             username: user.username,
+            roles: user.roles,
+            active: user.active,
         },
     });
 };

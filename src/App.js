@@ -26,4 +26,8 @@ app.get('/', (req, res) => {
     res.send('<h1>Nothing to see here</h1>');
 });
 
+app.all('*', (req, res) => {
+    res.status(404).json({ message: `Cannot find ${req.originalUrl} on this server.` });
+});
+
 module.exports = app;

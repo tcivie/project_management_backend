@@ -75,4 +75,10 @@ postSchema.statics.create = async function ({
     return post.save();
 };
 
+postSchema.statics.getPostsByLanguage = async function (cityId, language) {
+    this.find({ city: cityId, language })
+        .then((data) => data)
+        .catch((err) => err);
+};
+
 module.exports = mongoose.model('Post', postSchema);

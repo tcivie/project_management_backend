@@ -34,7 +34,7 @@ const login = asyncHandler(async (req, res) => {
 // @route GET /auth/refresh
 // @access Public - because access token has expired
 const refresh = (req, res) => {
-    const cookies = req.cookies;
+    const { cookies } = req;
     if (!cookies?.jwt) return res.status(401).json({ message: 'Unauthorized' });
 
     const refreshToken = cookies.jwt;
@@ -48,12 +48,12 @@ const refresh = (req, res) => {
             const foundUser = await User.findOne({
                 username: decoded.username,
             }).exec();
-            if (!foundUser)
-                return res.status(401).json({ message: 'Unauthorized' });
+            if (!foundUser) return res.status(401).json({ message: 'Unauthorized' });
 
             const accessToken = jwt.sign(
                 {
                     UserInfo: {
+                        id: foundUser._id,
                         username: foundUser.username,
                         roles: foundUser.roles,
                         active: foundUser.active,
@@ -72,8 +72,8 @@ const refresh = (req, res) => {
 // @route POST /auth/logout
 // @access Public - just to clear cookie if exists
 const logout = (req, res) => {
-    const cookies = req.cookies;
-    if (!cookies?.jwt) return res.sendStatus(204); //No content
+    const { cookies } = req;
+    if (!cookies?.jwt) return res.sendStatus(204); // No content
     res.clearCookie('jwt', { httpOnly: true, sameSite: 'None', secure: true });
     res.json({ message: 'Cookie cleared' });
 };

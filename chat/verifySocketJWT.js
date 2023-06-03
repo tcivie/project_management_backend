@@ -12,6 +12,7 @@ function verifySocketJWT(socket, next) {
         if (err) {
             return next(new Error('Authentication error'));
         }
+        socket.userId = decoded.UserInfo.id;
         socket.user = decoded.UserInfo.username;
         socket.roles = decoded.UserInfo.roles;
         socket.active = decoded.UserInfo.active;
