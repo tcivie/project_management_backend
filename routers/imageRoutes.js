@@ -2,14 +2,22 @@ const express = require('express');
 
 const router = express.Router();
 
-router.get('/userAvatar/:userId', (req, res) => {
-    const { userId } = req.params;
-    res.sendFile(`${process.cwd()}/uploads/${userId}/avatar.png`);
+router.get('/userAvatar/', (req, res) => {
+    const { image } = req.params;
+    if (image) {
+        res.sendFile(`${process.cwd()}/${image}`);
+    } else {
+        res.status(404).json({ error: 'Image not found' });
+    }
 });
 
-router.get('/postImage/:postId/:imageId', (req, res) => {
-    const { postId, imageId } = req.params;
-    res.sendFile(`${process.cwd()}/uploads/${postId}/${imageId}`);
+router.get('/postImage/:image', (req, res) => {
+    const { image } = req.params;
+    if (image) {
+        res.sendFile(`${process.cwd()}/${image}`);
+    } else {
+        res.status(404).json({ error: 'Image not found' });
+    }
 });
 
 module.exports = router;
