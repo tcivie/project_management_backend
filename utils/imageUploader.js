@@ -4,7 +4,12 @@ const { extname } = require('path');
 // Configure multer storage
 const storage = multer.diskStorage({
     destination(req, file, cb) {
-        cb(null, './uploads/');
+        // check if image is avatar or post image
+        if (req.baseUrl === '/api/v1/images/userAvatar') {
+            cb(null, './uploads/users/');
+        } else {
+            cb(null, './uploads/posts/');
+        }
     },
     filename(req, file, cb) {
         cb(null, Date.now() + extname(file.originalname)); // Rename file
@@ -28,7 +33,7 @@ const upload = multer({
         fileSize: 1024 * 1024 * 5,
     },
     fileFilter,
-});
+}).single('image');
 
 const uploadMultiple = multer({
     storage,

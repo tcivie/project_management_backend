@@ -3,7 +3,8 @@ const express = require('express');
 const router = express.Router();
 const usersController = require('../controllers/usersController');
 const verifyJWT = require('../middleware/verifyJWT');
-// const checkActivity = require('../middleware/checkActivity');
+const { upload } = require('../utils/imageUploader');
+
 const {
     roleList,
     // hasAllRoles,
@@ -12,16 +13,16 @@ const {
     CanPerfomAction,
 } = require('../middleware/checkRoles');
 
-router.use(verifyJWT);
-
 router
     .route('/:id')
     .get(usersController.getUserById);
+router.use(verifyJWT);
+
 router
     .route('/')
     .get(CanPerfomAction(), usersController.getMyDetails)
-    .post(hasNoRoles(), usersController.registerUser)
-    .patch(CanPerfomAction(), usersController.updateUser)
+    .post(hasNoRoles(), upload, usersController.registerUser)
+    .patch(CanPerfomAction(), upload, usersController.updateUser)
     .delete(CanPerfomAction(), usersController.deleteUser);
 
 router
