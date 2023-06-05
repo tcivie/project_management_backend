@@ -22,6 +22,26 @@ router
     );
 
 router
+    .use(verifyJWT)
+    .route('/follow')
+    .post(usersController.followUser);
+
+router
+    .use(verifyJWT)
+    .route('/unfollow')
+    .post(usersController.unfollowUser);
+
+router
+    .use(verifyJWT)
+    .route('/savePost')
+    .post(usersController.savePost);
+
+router
+    .use(verifyJWT)
+    .route('/unSavePost')
+    .post(usersController.unSavePost);
+
+router
     .route('/:id')
     .get(usersController.getUserById);
 
