@@ -61,7 +61,7 @@ const createPost = asyncHandler(async (req, res) => {
     })
         .then((data) => {
             const response = {
-                data: data._doc,
+                post: data._doc,
                 owner: data?.userId ? data.userId.equals(req?.id) : false,
                 setHelpful: data.helpful ? data.helpful.includes(req?.id) : false,
                 setSaved: data.saves ? data.saves.includes(req?.id) : false,
