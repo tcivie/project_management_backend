@@ -15,18 +15,23 @@ const getAllUsers = asyncHandler(async (req, res) => {
 });
 
 // @desc    Get user by id
-// @route   GET /api/users
+// @route   GET /api/users/:id
 // @access  Private/Admin
-// const getUserById = asyncHandler(async (req, res) => {
-//     const user = await User.findById(req.params.id)
-//         .select('-password')
-//         .lean()
-//         .exec();
-//     if (!user) {
-//         return res.status(400).json({ message: 'User not found' });
-//     }
-//     res.json(user);
-// });
+const getUserById = asyncHandler(async (req, res) => {
+    // Check if the ID is mongoId type
+    if (req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+        const user = await User.findById(req.params.id)
+            .select('-password')
+            .lean()
+            .exec();
+        if (!user) {
+            return res.status(400).json({ message: 'User not found' });
+        }
+        res.json(user);
+    } else {
+        return res.status(400).json({ message: 'User not found' });
+    }
+});
 
 // @desc    Get logged user details
 // @route   GET /api/users
@@ -48,8 +53,9 @@ const getMyDetails = asyncHandler(async (req, res) => {
 // @access  Public
 const registerUser = asyncHandler(async (req, res) => {
     const {
-        username, password, email, nickname, profilePic,
+        username, password, email, nickname,
     } = req.body;
+    const avatar = req.file?.path;
     const isSSO = req.isSSO || false;
     // Confirm data
     if (!username || !email || (!isSSO && !password)) {
@@ -78,7 +84,7 @@ const registerUser = asyncHandler(async (req, res) => {
         password: hashedPwd,
         roles: 1,
         nickname: nickname || username,
-        // profilePic: profilePic, //TODO: Add profile pic to User model
+        avatar: avatar || null,
     });
     if (user) {
         await user.save();
@@ -99,12 +105,14 @@ const updateUser = asyncHandler(async (req, res) => {
     const {
         email, username, password, nickname,
     } = req.body;
+    const avatar = req.file?.path;
     const user = await User.findOne({ username }).exec();
     if (!user) {
         return res.status(400).json({ message: 'User not found' });
     }
     user.email = email || user.email;
     user.nickname = nickname || user.nickname;
+    user.avatar = avatar || user.avatar;
     if (password) {
         user.password = await bcrypt.hash(password, 10);
     }
@@ -113,6 +121,7 @@ const updateUser = asyncHandler(async (req, res) => {
         _id: updatedUser._id,
         email: updatedUser.email,
         nickname: updatedUser.nickname,
+        avatar: updatedUser.avatar,
     });
 });
 
@@ -147,4 +156,5 @@ module.exports = {
     registerUser,
     updateUser,
     deleteUser,
+    getUserById,
 };

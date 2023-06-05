@@ -8,5 +8,6 @@ router.use('/users', require('./userRoutes'));
 router.use('/search', require('./searchRoutes'));
 router.use('/chat', require('./chatRoutes'));
 router.use('/cors', require('./corsRoutes'));
+router.use('/images', require('./imageRoutes'));
 
 module.exports = router;

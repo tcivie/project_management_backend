@@ -64,3 +64,4 @@ web_modules/
 .stylelintcache
 
 .idea/
+uploads/*
