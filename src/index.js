@@ -14,13 +14,16 @@ mongoose
     .connect(process.env.DBURL)
     .then(() => {
         appServer.listen(appPort, () => {
+            // eslint-disable-next-line no-console
             console.log(`App running at port ${appPort}`);
         });
         socketServer.listen(socketPort, () => { // Start the Socket.IO server
+            // eslint-disable-next-line no-console
             console.log(`Socket.IO server running at port ${socketPort}`);
         });
     })
     .catch((error) => {
+        // eslint-disable-next-line no-console
         console.log(error);
     });
 

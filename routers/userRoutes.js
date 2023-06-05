@@ -14,22 +14,23 @@ const {
 } = require('../middleware/checkRoles');
 
 router
-    .route('/:id')
-    .get(usersController.getUserById);
-router.use(verifyJWT);
+    .use(verifyJWT)
+    .route('/all/')
+    .get(
+        hasRoles(roleList.superAdmin, roleList.admin),
+        usersController.getAllUsers,
+    );
 
 router
+    .route('/:id')
+    .get(usersController.getUserById);
+
+router
+    .use(verifyJWT)
     .route('/')
     .get(CanPerfomAction(), usersController.getMyDetails)
     .post(hasNoRoles(), upload, usersController.registerUser)
     .patch(CanPerfomAction(), upload, usersController.updateUser)
     .delete(CanPerfomAction(), usersController.deleteUser);
-
-router
-    .route('/all')
-    .get(
-        hasRoles(roleList.superAdmin, roleList.admin),
-        usersController.getAllUsers,
-    );
 
 module.exports = router;

@@ -1,6 +1,8 @@
 require('dotenv').config();
 const mongoose = require('mongoose');
-const { describe, it, before, after, afterEach } = require('mocha');
+const {
+    describe, it, before, after, afterEach,
+} = require('mocha');
 const { assert } = require('chai');
 
 const supertest = require('supertest');
@@ -11,19 +13,19 @@ const User = require('../models/User');
 
 const request = supertest(app);
 
-before(async function () {
+before(async () => {
     await mongoose.connect(process.env.DBURL, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
     });
 });
 
-after(async function () {
+after(async () => {
     await User.deleteOne({ username: 'testuser' });
     await mongoose.disconnect();
 });
-describe('POST /api/users', function () {
-    it('should return 400 if username, password or email are missing', async function () {
+describe('POST /api/users', () => {
+    it('should return 400 if username, password or email are missing', async () => {
         const res = await request.post('/api/users').send({
             username: 'testuser',
             password: 'testpassword',
@@ -34,7 +36,7 @@ describe('POST /api/users', function () {
         assert.deepEqual(res.body, { message: 'All fields are required' });
     });
 
-    it('should return 201 and create a user if valid data is provided', async function () {
+    it('should return 201 and create a user if valid data is provided', async () => {
         const res = await request.post('/api/users').send({
             username: 'testuser',
             password: 'testpassword',
@@ -51,7 +53,7 @@ describe('POST /api/users', function () {
         assert.isTrue(await user.validPassword('testpassword'));
     });
 
-    it('should return 409 if username already exists', async function () {
+    it('should return 409 if username already exists', async () => {
         const res = await request.post('/api/users').send({
             username: 'testuser',
             password: 'testpassword',
@@ -64,20 +66,20 @@ describe('POST /api/users', function () {
     });
 });
 
-describe('GET /api/users/all', function () {
-    it('should return 403 if not authorized (no JWT or invalid JWT)', async function () {
+describe('GET /api/users/all', () => {
+    it('should return 403 if not authorized (no JWT or invalid JWT)', async () => {
         // Test with no JWT
-        let res = await request.get('/api/users/all');
+        let res = await request.get('/api/users/all/');
         assert.equal(res.status, 403);
 
         // Test with invalid JWT
         res = await request
-            .get('/api/users/all')
+            .get('/api/users/all/')
             .set('Authorization', 'Bearer some.invalid.token');
         assert.equal(res.status, 403);
     });
 
-    it('should return 403 if authorized but with insufficient roles', async function () {
+    it('should return 403 if authorized but with insufficient roles', async () => {
         // Test with a JWT for a user with insufficient roles (e.g., a regular user)
         const token = generateTokenWithRoles(roleList.user);
         const res = await request
@@ -87,7 +89,7 @@ describe('GET /api/users/all', function () {
         assert.equal(res.status, 403);
     });
 
-    it('should return 200 and a list of users if authorized and with valid roles', async function () {
+    it('should return 200 and a list of users if authorized and with valid roles', async () => {
         // Test with a JWT for a user with valid roles (e.g., an admin or superAdmin)
         const token = generateTokenWithRoles(roleList.admin);
         const res = await request
@@ -99,8 +101,8 @@ describe('GET /api/users/all', function () {
     });
 });
 
-describe('PATCH /api/users', function () {
-    it('should return 400 if the user does not exist', async function () {
+describe('PATCH /api/users', () => {
+    it('should return 400 if the user does not exist', async () => {
         const token = generateTokenWithRoles(roleList.admin);
         const res = await request
             .patch('/api/users')
@@ -111,7 +113,7 @@ describe('PATCH /api/users', function () {
         assert.equal(res.body.message, 'User not found');
     });
 
-    it('should update the email of the user', async function () {
+    it('should update the email of the user', async () => {
         const token = generateTokenWithRoles(roleList.user);
         const newEmail = 'newemail@example.com';
         const res = await request
@@ -123,7 +125,7 @@ describe('PATCH /api/users', function () {
         assert.equal(res.body.email, newEmail);
     });
 
-    it('should update the nickname of the user', async function () {
+    it('should update the nickname of the user', async () => {
         const token = generateTokenWithRoles(roleList.user);
         const newNickname = 'newNickname';
         const res = await request
@@ -135,7 +137,7 @@ describe('PATCH /api/users', function () {
         assert.equal(res.body.nickname, newNickname);
     });
 
-    it('should update the password of the user', async function () {
+    it('should update the password of the user', async () => {
         const token = generateTokenWithRoles(roleList.user);
         const newPassword = 'newPassword';
         const res = await request
@@ -217,7 +219,7 @@ function generateTokenWithRoles(roles) {
     const payload = {
         UserInfo: {
             username: 'testuser',
-            roles: roles,
+            roles,
             active: true,
         },
     };
@@ -228,3 +230,70 @@ function generateTokenWithRoles(roles) {
 
     return token;
 }
+
+describe('GET /api/users/:id', () => {
+    let user;
+    let token;
+
+    beforeEach(async () => {
+        // Create a user for testing
+        user = new User({
+            username: 'testUser',
+            email: 'testUser@test.com',
+            password: 'testPassword',
+            roles: 1,
+            nickname: 'testNick',
+            active: true,
+        });
+        await user.save();
+        // Generate a token for an admin user
+        token = generateTokenWithRoles(roleList.admin);
+    });
+
+    afterEach(async () => {
+        // Remove the user after testing
+        await User.deleteMany();
+    });
+
+    it('should return a user by id', async () => {
+        const res = await request
+            .get(`/api/users/${user._id}`)
+            .set('Authorization', `Bearer ${token}`);
+
+        assert.equal(res.status, 200);
+        assert.equal(res.body.username, user.username);
+        assert.equal(res.body.email, user.email);
+        // Validate other fields as required...
+    });
+
+    it('should return 400 error if user does not exist', async () => {
+        const res = await request
+            .get('/api/users/nonexistentid')
+            .set('Authorization', `Bearer ${token}`);
+
+        assert.equal(res.status, 400);
+        assert.deepEqual(res.body, { message: 'User not found' });
+    });
+
+    // it('should return 403 if not authorized (no JWT or invalid JWT)', async () => {
+    //     // Test with no JWT
+    //     let res = await request.get(`/api/users/${user._id}`);
+    //     assert.equal(res.status, 403);
+    //
+    //     // Test with invalid JWT
+    //     res = await request
+    //         .get(`/api/users/${user._id}`)
+    //         .set('Authorization', 'Bearer some.invalid.token');
+    //     assert.equal(res.status, 403);
+    // });
+    //
+    // it('should return 403 if authorized but with insufficient roles', async () => {
+    //     // Test with a JWT for a user with insufficient roles (e.g., a regular user)
+    //     const userToken = generateTokenWithRoles(roleList.user);
+    //     const res = await request
+    //         .get(`/api/users/${user._id}`)
+    //         .set('Authorization', `Bearer ${userToken}`);
+    //
+    //     assert.equal(res.status, 403);
+    // });
+});

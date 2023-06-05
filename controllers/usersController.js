@@ -18,14 +18,19 @@ const getAllUsers = asyncHandler(async (req, res) => {
 // @route   GET /api/users/:id
 // @access  Private/Admin
 const getUserById = asyncHandler(async (req, res) => {
-    const user = await User.findById(req.params.id)
-        .select('-password')
-        .lean()
-        .exec();
-    if (!user) {
+    // Check if the ID is mongoId type
+    if (req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+        const user = await User.findById(req.params.id)
+            .select('-password')
+            .lean()
+            .exec();
+        if (!user) {
+            return res.status(400).json({ message: 'User not found' });
+        }
+        res.json(user);
+    } else {
         return res.status(400).json({ message: 'User not found' });
     }
-    res.json(user);
 });
 
 // @desc    Get logged user details
@@ -50,7 +55,7 @@ const registerUser = asyncHandler(async (req, res) => {
     const {
         username, password, email, nickname,
     } = req.body;
-    const avatar = req?.file.path;
+    const avatar = req.file?.path;
     const isSSO = req.isSSO || false;
     // Confirm data
     if (!username || !email || (!isSSO && !password)) {
@@ -100,7 +105,7 @@ const updateUser = asyncHandler(async (req, res) => {
     const {
         email, username, password, nickname,
     } = req.body;
-    const avatar = req?.file.path;
+    const avatar = req.file?.path;
     const user = await User.findOne({ username }).exec();
     if (!user) {
         return res.status(400).json({ message: 'User not found' });
