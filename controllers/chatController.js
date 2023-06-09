@@ -92,12 +92,56 @@ const getPosts = asyncHandler(async (req, res) => {
         });
 });
 
+// @desc latest x posts
+// @route POST /api/chat/posts/latest
+// @access Public
+const getLatestPosts = asyncHandler(async (req, res) => {
+    const {
+        page, count, cityId, lang,
+    } = req.params;
+    // Page number (starting from 1)
+    const pageSize = count; // Number of documents per page
+    const skip = (page - 1) * pageSize;// Calculate the number of documents to skip
+    let query = {};
+    if (cityId) {
+        // Include cityId in the search criteria if it is provided
+        query = { city: cityId };
+    }
+    if (lang) {
+        query = { ...query, language: lang };
+    }
+    posts.find(query)
+        .sort({ createdAt: -1 }) // Sort in descending order based on createdAt field
+        .skip(skip) // Skip the specified number of documents
+        .limit(pageSize) // Limit the number of documents to retrieve per page
+        .then((data) => { res.status(200).json(data); })
+        .catch();
+});
+// @desc latest x messages
+// @route POST /api/chat/comments
+// @access Public
+const getPostComments = asyncHandler(async (req, res) => {
+    const {
+        page, count, postId,
+    } = req.params;
+    // Page number (starting from 1)
+    const pageSize = count; // Number of documents per page
+    const skip = (page - 1) * pageSize;// Calculate the number of documents to skip
+    messages.find({ postId })
+        .sort({ createdAt: -1 }) // Sort in descending order based on createdAt field
+        .skip(skip) // Skip the specified number of documents
+        .limit(pageSize) // Limit the number of documents to retrieve per page
+        .then((data) => { res.status(200).json(data); })
+        .catch();
+});
+
 // @desc get posts with specific languages
 // @route GET /api/chat/posts/city/:cityId/:language
 // @access Public
 const getPostsByLanguage = asyncHandler(async (req, res) => {
     const { cityId, language } = req.params;
     posts.find({ city: cityId, language })
+        .sort({ createdAt: -1 })
         .then((data) => {
             const response = data.map((post) => ({
                 post: post._doc,
@@ -159,4 +203,6 @@ module.exports = {
     getPostsByLanguage,
     setHelpful,
     unsetHelpful,
+    getLatestPosts,
+    getPostComments,
 };

@@ -2,8 +2,7 @@ require('socket.io');
 const jwt = require('jsonwebtoken');
 
 function verifySocketJWT(socket, next) {
-    const { token } = socket.handshake.query;
-
+    const { token } = socket.handshake.auth;
     if (!token) {
         return next(new Error('Authentication error'));
     }
