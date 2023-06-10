@@ -22,6 +22,7 @@ const getAllUsers = asyncHandler(async (req, res) => {
 const getUserById = asyncHandler(async (req, res) => {
     // Check if the ID is mongoId type
     if (req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
+        console.log(req.params.id);
         const user = await User.findById(req.params.id)
             .select('-password')
             .lean()

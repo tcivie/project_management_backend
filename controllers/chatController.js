@@ -47,13 +47,13 @@ const getUsersInChat = asyncHandler(async (req, res) => {
 // @access Private
 const createPost = asyncHandler(async (req, res) => {
     const {
-        language, city, userId, title, content, tags,
+        language, city, title, content, tags,
     } = req.body;
     const postImages = req?.files ? req.files.map((file) => file.path) : [];
     posts.create({
         language,
         city,
-        userId,
+        userId: req?.id,
         title,
         content,
         tags,
@@ -193,6 +193,79 @@ const unsetHelpful = asyncHandler(async (req, res) => {
         });
 });
 
+// @desc delete post
+// @route DELETE /api/chat/posts/delete/:postId
+// @access Private
+const deletePost = asyncHandler(async (req, res) => {
+    console.log('delete post');
+    const { postId } = req.params;
+    if (!mongoose.isValidObjectId(postId)) {
+        return res.status(400).json({ message: 'Invalid ID format' });
+    }
+    const FetchedPost = posts.findOneAndDelete({ _id: postId, userId: req?.id }).exec();
+    if (!FetchedPost) {
+        return res.status(404).json({ message: 'No Post Found' });
+    }
+    return res.status(200).json({ message: 'Post Deleted' });
+});
+
+// @desc update post
+// @route PUT /api/chat/update/:postId
+// @access Private
+const updatePost = asyncHandler(async (req, res) => {
+    console.log('update post');
+    const { postId } = req.params;
+    if (!mongoose.isValidObjectId(postId)) {
+        return res.status(400).json({ message: 'Invalid ID format' });
+    }
+
+    const {
+        language, city, title, content, tags, existingImages,
+    } = req.body;
+    console.log('req.files', req.files);
+    console.log('req.body', req.body);
+    const newImagePaths = req?.files ? req.files.map((file) => file.path) : [];
+    const postImages = [...newImagePaths, ...JSON.parse(existingImages || '[]')];
+
+    const updateData = {};
+    if (language) updateData.language = language;
+    if (city) updateData.city = city;
+    if (title) updateData.title = title;
+    if (content) updateData.content = content;
+    if (tags && tags.length > 0) updateData.tags = tags;
+    updateData.postImages = postImages;
+    console.log('UpdateData', updateData);
+    const updatedPost = await posts.findOneAndUpdate(
+        { _id: postId, userId: req?.id },
+        updateData,
+        { new: true },
+    ).exec();
+
+    if (!updatedPost) {
+        return res.status(404).json({ message: 'No Post Found' });
+    }
+
+    return res.status(200).json({ message: 'Post Updated' });
+});
+
+const getPost = asyncHandler(async (req, res) => {
+    const { postId } = req.params;
+    if (!mongoose.isValidObjectId(postId)) {
+        return res.status(400).json({ message: 'Invalid ID format' });
+    }
+    posts.findOne({ _id: postId })
+        .then((data) => {
+            const response = {
+                post: data._doc,
+                owner: data?.userId ? data.userId.equals(req?.id) : false,
+                setHelpful: data.helpful ? data.helpful.includes(req?.id) : false,
+                setSaved: data.saves ? data.saves.includes(req?.id) : false,
+            };
+            res.status(200).json(response);
+        })
+        .catch((err) => res.status(500).json({ error: err }));
+});
+
 module.exports = {
     getLanguages,
     getChatHistory,
@@ -203,6 +276,9 @@ module.exports = {
     getPostsByLanguage,
     setHelpful,
     unsetHelpful,
+    deletePost,
+    updatePost,
+    getPost,
     getLatestPosts,
     getPostComments,
 };

@@ -9,53 +9,48 @@ const roleList = {
     superAdmin: 2 ** 6,
 };
 
-const hasRoles = (...args) => {
-    return (req, res, next) => {
-        let flag = false;
-        args.forEach((arg) => {
-            if (req.roles & arg) flag = true;
-        });
-        if (flag) next();
-        else
+const hasRoles = (...args) => (req, res, next) => {
+    let flag = false;
+    args.forEach((arg) => {
+        if (req.roles & arg) flag = true;
+    });
+    if (flag) next();
+    else {
+        return res
+            .status(403)
+            .json({ message: 'Insuffcient permissions.' });
+    }
+};
+
+const hasAllRoles = (...args) => (req, res, next) => {
+    args.forEach((arg) => {
+        if ((req.roles & arg) === 0) {
             return res
                 .status(403)
                 .json({ message: 'Insuffcient permissions.' });
-    };
-};
-
-const hasAllRoles = (...args) => {
-    return (req, res, next) => {
-        args.forEach((arg) => {
-            if ((req.roles & arg) === 0)
-                return res
-                    .status(403)
-                    .json({ message: 'Insuffcient permissions.' });
-        });
-        next();
-    };
-};
-const hasNoRoles = () => {
-    return (req, res, next) => {
-        if (req.roles)
-            return res.status(403).json({ message: 'User has roles.' });
-        next();
-    };
-};
-
-const CanPerfomAction = () => {
-    return (req, res, next) => {
-        const isUserActionOnThemselves =
-            req.user === req.body.username || req.body.username === undefined;
-        if (isUserActionOnThemselves) {
-            next();
-        } else {
-            const checkRolesMiddleware = hasRoles(
-                roleList.admin,
-                roleList.superAdmin,
-            );
-            checkRolesMiddleware(req, res, next);
         }
-    };
+    });
+    next();
+};
+const hasNoRoles = () => (req, res, next) => {
+    if (req.roles) return res.status(403).json({ message: 'User has roles.' });
+    next();
+};
+
+const CanPerfomAction = () => (req, res, next) => {
+    const isUserActionOnThemselves = req.user === req.body.username || req.body.username === undefined;
+    if (isUserActionOnThemselves) {
+        console.log(req.user, req.body.username);
+        console.log('User is performing action on themselves');
+        next();
+    } else {
+        console.log('User is performing action on another user');
+        const checkRolesMiddleware = hasRoles(
+            roleList.admin,
+            roleList.superAdmin,
+        );
+        checkRolesMiddleware(req, res, next);
+    }
 };
 
 module.exports = {
