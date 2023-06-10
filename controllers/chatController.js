@@ -128,7 +128,7 @@ const getPostComments = asyncHandler(async (req, res) => {
     const pageSize = count; // Number of documents per page
     const skip = (page - 1) * pageSize;// Calculate the number of documents to skip
     messages.find({ postId })
-        .sort({ createdAt: -1 }) // Sort in descending order based on createdAt field
+        .sort({ createdAt: 1 }) // Sort in descending order based on createdAt field
         .skip(skip) // Skip the specified number of documents
         .limit(pageSize) // Limit the number of documents to retrieve per page
         .then((data) => { res.status(200).json(data); })
