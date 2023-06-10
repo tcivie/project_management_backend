@@ -121,18 +121,29 @@ const getLatestPosts = asyncHandler(async (req, res) => {
 // @route POST /api/chat/comments
 // @access Public
 const getPostComments = asyncHandler(async (req, res) => {
-    const {
-        page, count, postId,
-    } = req.params;
-    // Page number (starting from 1)
-    const pageSize = count; // Number of documents per page
-    const skip = (page - 1) * pageSize;// Calculate the number of documents to skip
-    messages.find({ postId })
-        .sort({ createdAt: 1 }) // Sort in descending order based on createdAt field
+    const { page, count, postId } = req.params;
+    let pageSize = count; // Number of documents per page
+    const skip = (page - 1) * pageSize; // Calculate the number of documents to skip
+
+    const totalCount = await messages.count({ postId });
+
+    if (totalCount < pageSize) {
+        pageSize = totalCount;
+    }
+
+    messages
+        .find({ postId })
+        .sort({ createdAt: -1 }) // Sort in descending order based on createdAt field
         .skip(skip) // Skip the specified number of documents
         .limit(pageSize) // Limit the number of documents to retrieve per page
-        .then((data) => { res.status(200).json(data); })
-        .catch();
+        .then((data) => {
+            const reversedData = data.reverse(); // Reverse the order of comments
+            res.status(200).json(reversedData);
+        })
+        .catch((error) => {
+            console.log(error);
+            res.status(500).json({ error });
+        });
 });
 
 // @desc get posts with specific languages
