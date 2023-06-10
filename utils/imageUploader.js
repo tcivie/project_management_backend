@@ -1,6 +1,7 @@
 const multer = require('multer');
 const { extname } = require('path');
-
+const fs = require('fs');
+const posts = require('../models/Chat/Posts');
 // Configure multer storage
 const storage = multer.diskStorage({
     destination(req, file, cb) {
@@ -26,6 +27,30 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
+const deleteExistingImages = async (req, res, next) => {
+    console.log('delete existing images');
+    const post = await posts.findById(req.params.postId).exec();
+    if (!post) {
+        return res.status(404).json({ message: 'Post not found.' });
+    }
+    const currentImages = post.postImages;
+    console.log('currentImages', currentImages);
+    const existingImages = JSON.parse(req.body.existingImages || '[]');
+    console.log('existingImages', existingImages);
+    currentImages.forEach((path) => {
+        if (!existingImages.includes(path)) {
+            fs.unlink(path, (err) => {
+                if (err) {
+                    console.error(err);
+                    return res.status(500).json({ message: 'An error occurred while deleting images.' });
+                }
+            });
+        }
+    });
+
+    next();
+};
+
 // Initialize multer upload
 const upload = multer({
     storage,
@@ -43,4 +68,4 @@ const uploadMultiple = multer({
     fileFilter,
 }).array('images', 5);
 
-module.exports = { upload, uploadMultiple };
+module.exports = { upload, uploadMultiple, deleteExistingImages };

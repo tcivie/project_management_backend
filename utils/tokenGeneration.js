@@ -11,7 +11,7 @@ const generateTokensAndResponse = async (res, user) => {
             },
         },
         process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: '15m' },
+        { expiresIn: '15h' }, // TODO: change to 15m
     );
 
     const refreshToken = jwt.sign(

@@ -29,11 +29,12 @@ const postSchema = new Schema({
         required: false,
         default: 0,
     },
-    helpful: {
-        type: Number,
-        required: false,
-        default: 0,
-    },
+    helpful: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'User',
+        },
+    ],
     comments: {
         type: Number,
         required: false,
@@ -44,6 +45,12 @@ const postSchema = new Schema({
         required: false,
         default: 0,
     },
+    saves: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'User',
+        },
+    ],
     tags: {
         type: [String],
         required: false,

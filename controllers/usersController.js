@@ -1,7 +1,9 @@
 const asyncHandler = require('express-async-handler');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
+const { differenceInSecondsWithOptions } = require('date-fns/fp');
 const User = require('../models/User');
+const Post = require('../models/Chat/Posts');
 
 // @desc    Get all users
 // @route   GET /api/users/all
@@ -37,7 +39,6 @@ const getUserById = asyncHandler(async (req, res) => {
 // @route   GET /api/users
 // @access  Private/Admin
 const getMyDetails = asyncHandler(async (req, res) => {
-    console.log(req.user);
     const user = await User.findOne({ username: req.user })
         .select('-password')
         .lean()
@@ -150,6 +151,116 @@ const deleteUser = asyncHandler(async (req, res) => {
     return res.status(200).json(reply);
 });
 
+// @desc    Follow user
+// @route   POST /api/users/follow
+// @access  Private
+const followUser = asyncHandler(async (req, res) => {
+    const { id } = req.body;
+    if (!id) {
+        return res.status(400).json({ message: 'User ID Required' });
+    }
+    // Does the user exist to follow?
+    const user = await User.findOne({ id }).exec();
+    if (!user) {
+        return res.status(400).json({ message: 'User not found' });
+    }
+    // Check if the user is already followed
+    const isFollowed = user.followers.includes(req.user);
+    if (isFollowed) {
+        return res.status(400).json({ message: 'Already followed' });
+    }
+    // Follow the user
+    const follower = await User.findOne({ id: req.user.id }).exec();
+    follower.following.push(id);
+    user.followers.push(follower._id);
+    await follower.save();
+    await user.save();
+    return res.status(200).json({ message: 'Followed' });
+});
+
+// @desc    Unfollow user
+// @route   POST /api/users/unfollow
+// @access  Private
+const unfollowUser = asyncHandler(async (req, res) => {
+    const { id } = req.body;
+    if (!id) {
+        return res.status(400).json({ message: 'User ID Required' });
+    }
+    // Does the user exist to unfollow?
+    const user = await User.findOne({ id: req.user.id }).exec();
+    const userToUnfollow = await User.findOne({ id }).exec();
+    if (!user || !userToUnfollow) {
+        return res.status(400).json({ message: 'User not found' });
+    }
+    // Check if the user is already followed
+    const isFollowed = user.following.includes(id);
+    if (!isFollowed) {
+        return res.status(400).json({ message: 'Not followed' });
+    }
+    // Unfollow the user
+    user.following.pull(id);
+    userToUnfollow.followers.pull(req.user.id);
+    await user.save();
+    await userToUnfollow.save();
+    return res.status(200).json({ message: 'Unfollowed' });
+});
+
+// @desc    save Post
+// @route   POST /api/users/savePost
+// @access  Private
+const savePost = asyncHandler(async (req, res) => {
+    const { postId } = req.body;
+    if (!postId) {
+        return res.status(400).json({ message: 'Post ID Required' });
+    }
+    // Does the post exist to save?
+    const post = await Post.findOne({ _id: postId }).exec();
+    if (!post) {
+        return res.status(400).json({ message: 'Post not found' });
+    }
+    // Get user
+    const savingUser = await User.findOne({ id: req.user.id }).exec();
+    // Check if the post is already saved
+    const isSaved = savingUser.savedPosts.includes(postId);
+    if (isSaved) {
+        return res.status(200).json({ message: 'Already saved' });
+    }
+    // Save the post
+    savingUser.savedPosts.push(postId);
+    post.saves.push(savingUser._id);
+    await savingUser.save();
+    await post.save();
+    return res.status(200).json({ message: 'Saved' });
+});
+
+// @desc    UnSave post
+// @route   POST /api/users/unSavePost
+// @access  Private
+const unSavePost = asyncHandler(async (req, res) => {
+    const { postId } = req.body;
+    if (!postId) {
+        return res.status(400).json({ message: 'Post ID Required' });
+    }
+    // Does the post exist to unsave?
+    const postToUnSave = await Post.findOne({ _id: postId }).exec();
+    if (!postToUnSave) {
+        return res.status(400).json({ message: 'Post not found' });
+    }
+    // Get user
+    const user = await User.findOne({ id: req.user.id }).exec();
+    // Check if the post is already saved
+    const isSaved = user.savedPosts.includes(postId);
+    if (!isSaved) {
+        return res.status(400).json({ message: 'Not saved' });
+    }
+    // Unsave the post
+    user.savedPosts.pull(postId);
+    postToUnSave.saves.pull(user._id);
+    await user.save();
+    await postToUnSave.save();
+    return res.status(200).json({ message: 'Unsaved' });
+});
+
 module.exports = {
     getAllUsers,
     getMyDetails,
@@ -157,4 +268,8 @@ module.exports = {
     updateUser,
     deleteUser,
     getUserById,
+    followUser,
+    unfollowUser,
+    savePost,
+    unSavePost,
 };
