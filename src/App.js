@@ -13,7 +13,7 @@ const app = express();
 app.use(logger);
 
 app.use(cors({
-    origin: 'http://localhost:3001',
+    origin: process.env.CLIENT_URL || 'http://localhost:3000',
     credentials: true,
 }));
 
