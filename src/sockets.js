@@ -11,14 +11,11 @@ function socketSetup(server) {
         },
     });
 
-    io.use(verifySocketJWT); // Use the middleware to verify the JWT
-
     io.on('connection', (socket) => {
         socket.on('join', (postId) => join(socket, postId));
-
-        socket.on('newMessage', (data) => newMessage(socket, io, data));
-
         socket.on('disconnect', () => leave(socket));
+        io.use(verifySocketJWT); // Use the middleware to verify the JWT
+        socket.on('newMessage', (data) => newMessage(socket, io, data));
     });
 
     return io;

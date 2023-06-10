@@ -11,6 +11,8 @@ router.route('/languages').get(chatController.getLanguages);
 router.route('/posts/post/:postId/users').get(chatController.getUsersInChat);
 router.route('/posts/post/:postId').get(chatController.getChatHistory);
 router.route('/posts/post/getSinglePost/:postId').get(chatController.getPost);
+router.route('/posts/latest/:page/:count/:cityId/:lang').get(chatController.getLatestPosts);
+router.route('/posts/comments/:postId/:page/:count').get(chatController.getPostComments);
 router.use(verifyJWT);
 router.route('/posts/city/:cityId/:language').get(chatController.getPostsByLanguage);
 router.route('/posts/city/:cityId').get(chatController.getPosts);

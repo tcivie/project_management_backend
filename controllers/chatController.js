@@ -23,7 +23,6 @@ const getChatHistory = asyncHandler(async (req, res) => {
 // @route POST /api/chat/post/:postId
 // @access Public
 const sendMessage = asyncHandler(async (req, res) => {
-    console.log('send message');
     const { postId } = req.params;
     const { userId, content, replyTo } = req.body;
     messages.create({
@@ -47,7 +46,6 @@ const getUsersInChat = asyncHandler(async (req, res) => {
 // @route POST /api/chat/posts
 // @access Private
 const createPost = asyncHandler(async (req, res) => {
-    console.log('create post');
     const {
         language, city, userId, title, content, tags,
     } = req.body;
@@ -94,12 +92,56 @@ const getPosts = asyncHandler(async (req, res) => {
         });
 });
 
+// @desc latest x posts
+// @route POST /api/chat/posts/latest
+// @access Public
+const getLatestPosts = asyncHandler(async (req, res) => {
+    const {
+        page, count, cityId, lang,
+    } = req.params;
+    // Page number (starting from 1)
+    const pageSize = count; // Number of documents per page
+    const skip = (page - 1) * pageSize;// Calculate the number of documents to skip
+    let query = {};
+    if (cityId) {
+        // Include cityId in the search criteria if it is provided
+        query = { city: cityId };
+    }
+    if (lang) {
+        query = { ...query, language: lang };
+    }
+    posts.find(query)
+        .sort({ createdAt: -1 }) // Sort in descending order based on createdAt field
+        .skip(skip) // Skip the specified number of documents
+        .limit(pageSize) // Limit the number of documents to retrieve per page
+        .then((data) => { res.status(200).json(data); })
+        .catch();
+});
+// @desc latest x messages
+// @route POST /api/chat/comments
+// @access Public
+const getPostComments = asyncHandler(async (req, res) => {
+    const {
+        page, count, postId,
+    } = req.params;
+    // Page number (starting from 1)
+    const pageSize = count; // Number of documents per page
+    const skip = (page - 1) * pageSize;// Calculate the number of documents to skip
+    messages.find({ postId })
+        .sort({ createdAt: -1 }) // Sort in descending order based on createdAt field
+        .skip(skip) // Skip the specified number of documents
+        .limit(pageSize) // Limit the number of documents to retrieve per page
+        .then((data) => { res.status(200).json(data); })
+        .catch();
+});
+
 // @desc get posts with specific languages
 // @route GET /api/chat/posts/city/:cityId/:language
 // @access Public
 const getPostsByLanguage = asyncHandler(async (req, res) => {
     const { cityId, language } = req.params;
     posts.find({ city: cityId, language })
+        .sort({ createdAt: -1 })
         .then((data) => {
             const response = data.map((post) => ({
                 post: post._doc,
@@ -119,7 +161,6 @@ const getPostsByLanguage = asyncHandler(async (req, res) => {
 // @route POST /api/chat/posts/setHelpful
 // @access Private
 const setHelpful = asyncHandler(async (req, res) => {
-    console.log('setHelpful');
     const { userId, postId } = req.body;
     if (!mongoose.isValidObjectId(userId) || !mongoose.isValidObjectId(postId)) {
         return res.status(400).json({ message: 'Invalid ID format' });
@@ -138,7 +179,6 @@ const setHelpful = asyncHandler(async (req, res) => {
 // @route POST /api/chat/posts/unsetHelpful
 // @access Private
 const unsetHelpful = asyncHandler(async (req, res) => {
-    console.log('unsetHelpful');
     const { userId, postId } = req.body;
     if (!mongoose.isValidObjectId(userId) || !mongoose.isValidObjectId(postId)) {
         return res.status(400).json({ message: 'Invalid ID format' });
@@ -239,4 +279,6 @@ module.exports = {
     deletePost,
     updatePost,
     getPost,
+    getLatestPosts,
+    getPostComments,
 };
