@@ -47,13 +47,13 @@ const getUsersInChat = asyncHandler(async (req, res) => {
 // @access Private
 const createPost = asyncHandler(async (req, res) => {
     const {
-        language, city, userId, title, content, tags,
+        language, city, title, content, tags,
     } = req.body;
     const postImages = req?.files ? req.files.map((file) => file.path) : [];
     posts.create({
         language,
         city,
-        userId,
+        userId: req?.id,
         title,
         content,
         tags,
