@@ -34,19 +34,6 @@ messageSchema.statics.getMessages = async function (postId) {
         .catch((err) => err);
 };
 
-// Create a message
-messageSchema.statics.create = async function ({
-    postId, userId, content, replyTo,
-}) {
-    const message = new this({
-        postId,
-        userId,
-        content,
-        replyTo,
-    });
-    return message.save();
-};
-
 // get active users
 messageSchema.statics.getActiveUsers = async function (postId) {
     this.find({ postId }).distinct('userId')
