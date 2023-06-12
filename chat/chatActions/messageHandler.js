@@ -9,7 +9,6 @@ async function createMessage(postId, userId, content, replyTo) {
 const newMessage = (socket, io, data) => {
     // eslint-disable-next-line no-bitwise
     if (socket.roles & roleList.user) {
-        console.log('socket:', socket);
         // console.log('io:', io);
         // console.log('data:', data);
         createMessage(data.postId, socket.userId, data.sendValue, null).then(
