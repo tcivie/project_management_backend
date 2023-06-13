@@ -2,6 +2,7 @@ const asyncHandler = require('express-async-handler');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const { differenceInSecondsWithOptions } = require('date-fns/fp');
+const mongoose = require('mongoose');
 const User = require('../models/User');
 const Post = require('../models/Chat/Posts');
 
@@ -20,19 +21,42 @@ const getAllUsers = asyncHandler(async (req, res) => {
 // @route   GET /api/users/:id
 // @access  Private/Admin
 const getUserById = asyncHandler(async (req, res) => {
-    // Check if the ID is mongoId type
-    if (req.params.id.match(/^[0-9a-fA-F]{24}$/)) {
-        console.log(req.params.id);
+    // console.log(req.params);
+    // Check if the the param is a list of ids
+    if (req.params.id.includes(',')) {
+        // console.log('GET USER BY ID - MULTIPLE');
+        const ids = req.params.id.split(',');
+        ids.forEach((id) => {
+            if (!mongoose.Types.ObjectId.isValid(id)) {
+                // console.log('INVALID ID');
+                return res.status(400).json({ message: 'Invalid id' });
+            }
+        });
+        console.log(ids);
+        const users = await User.find({ _id: { $in: ids } })
+            .select('-password')
+            .lean()
+            .exec();
+        if (!users?.length) {
+            // console.log('NO USERS FOUND');
+            return res.status(400).json({ message: 'No users found' });
+        }
+        console.log(users);
+        res.status(200).json(users);
+    } else {
+        // console.log('GET USER BY ID - SINGLE');
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(400).json({ message: 'Invalid id' });
+        }
         const user = await User.findById(req.params.id)
             .select('-password')
             .lean()
             .exec();
         if (!user) {
+            // console.log('USER NOT FOUND');
             return res.status(400).json({ message: 'User not found' });
         }
         res.json(user);
-    } else {
-        return res.status(400).json({ message: 'User not found' });
     }
 });
 

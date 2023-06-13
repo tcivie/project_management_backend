@@ -272,7 +272,7 @@ describe('GET /api/users/:id', () => {
             .set('Authorization', `Bearer ${token}`);
 
         assert.equal(res.status, 400);
-        assert.deepEqual(res.body, { message: 'User not found' });
+        assert.deepEqual(res.body, { message: 'Invalid id' });
     });
 
     // it('should return 403 if not authorized (no JWT or invalid JWT)', async () => {

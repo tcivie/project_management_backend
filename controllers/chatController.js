@@ -28,7 +28,10 @@ const sendMessage = asyncHandler(async (req, res) => {
     messages.create({
         postId, userId, content, replyTo,
     })
-        .then((data) => res.status(200).json(data))
+        .then((data) => {
+            posts.updateOne({ _id: postId }, { $inc: { comments: 1 } })
+                .then(() => res.status(200).json(data));
+        })
         .catch((err) => res.status(500).json({ error: err }));
 });
 
@@ -93,7 +96,7 @@ const getPosts = asyncHandler(async (req, res) => {
 });
 
 // @desc latest x posts
-// @route POST /api/chat/posts/latest
+// @route POST /api/chat/posts/latest/:page/:count/:cityId/:lang
 // @access Public
 const getLatestPosts = asyncHandler(async (req, res) => {
     const {
@@ -107,7 +110,7 @@ const getLatestPosts = asyncHandler(async (req, res) => {
         // Include cityId in the search criteria if it is provided
         query = { city: cityId };
     }
-    if (lang) {
+    if (lang && lang !== 'all') {
         query = { ...query, language: lang };
     }
     posts.find(query)
@@ -117,6 +120,40 @@ const getLatestPosts = asyncHandler(async (req, res) => {
         .then((data) => { res.status(200).json(data); })
         .catch();
 });
+
+// @desc gets active users
+// @route GET /api/chat/posts/active-users/city/:cityId
+// @access Public
+const getActiveUsersByCity = asyncHandler(async (req, res) => {
+    try {
+        let activeUsers = await posts.aggregate([
+            { $match: { city: req.params.cityId } },
+            { $group: { _id: null, total: { $sum: '$liveUsers' } } },
+        ]);
+        activeUsers = activeUsers.length > 0 ? activeUsers[0].total : 0;
+        res.status(200).json(activeUsers);
+    } catch (error) {
+        res.status(500).json({ message: 'Error occurred while retrieving active users.' });
+    }
+});
+
+// @desc gets active users
+// @route GET /api/chat/posts/active-users/city/:cityId/language/:lang
+// @access Public
+const getActiveUsersByCityLanguage = asyncHandler(async (req, res) => {
+    try {
+        let activeUsers = await posts.aggregate([
+            { $match: { city: req.params.cityId, language: req.params.lang } },
+            { $group: { _id: null, total: { $sum: '$liveUsers' } } },
+        ]);
+        activeUsers = activeUsers.length > 0 ? activeUsers[0].total : 0;
+        // console.log(activeUsers);
+        res.status(200).json(activeUsers);
+    } catch (error) {
+        res.status(500).json({ message: 'Error occurred while retrieving active users.' });
+    }
+});
+
 // @desc latest x messages
 // @route POST /api/chat/comments
 // @access Public
@@ -277,6 +314,43 @@ const getPost = asyncHandler(async (req, res) => {
         .catch((err) => res.status(500).json({ error: err }));
 });
 
+// @desc user joined the chat
+// @route POST /api/posts/post/joinChat/:postId
+// @access Private
+const joinChat = asyncHandler(async (req, res) => {
+    // console.log('join chat');
+    const { postId } = req.params;
+    if (!mongoose.isValidObjectId(postId)) {
+        return res.status(400).json({ message: 'Invalid ID format' });
+    }
+    posts.findOneAndUpdate({ _id: postId }, { $addToSet: { liveUsers: req?.id } })
+        .then((data) => {
+            res.status(200).json(data);
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).json({ error: err });
+        });
+});
+
+// @desc user left the chat
+// @route POST /api/posts/post/leaveChat/:postId
+// @access Private
+const leaveChat = asyncHandler(async (req, res) => {
+    const { postId } = req.params;
+    if (!mongoose.isValidObjectId(postId)) {
+        return res.status(400).json({ message: 'Invalid ID format' });
+    }
+    posts.findOneAndUpdate({ _id: postId }, { $pull: { liveUsers: req?.id } })
+        .then((data) => {
+            res.status(200).json(data);
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).json({ error: err });
+        });
+});
+
 module.exports = {
     getLanguages,
     getChatHistory,
@@ -292,4 +366,8 @@ module.exports = {
     getPost,
     getLatestPosts,
     getPostComments,
+    getActiveUsersByCity,
+    getActiveUsersByCityLanguage,
+    joinChat,
+    leaveChat,
 };

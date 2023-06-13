@@ -2,6 +2,7 @@ const { roleList } = require('../../middleware/checkRoles');
 const messages = require('../../models/Chat/Messages');
 
 async function createMessage(postId, userId, content, replyTo) {
+    if (content === '') return null;
     return messages.create({
         postId, userId, content, replyTo,
     });
@@ -9,7 +10,6 @@ async function createMessage(postId, userId, content, replyTo) {
 const newMessage = (socket, io, data) => {
     // eslint-disable-next-line no-bitwise
     if (socket.roles & roleList.user) {
-        console.log('socket:', socket);
         // console.log('io:', io);
         // console.log('data:', data);
         createMessage(data.postId, socket.userId, data.sendValue, null).then(

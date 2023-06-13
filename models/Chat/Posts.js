@@ -40,11 +40,10 @@ const postSchema = new Schema({
         required: false,
         default: 0,
     },
-    liveUsers: {
-        type: Number,
-        required: false,
-        default: 0,
-    },
+    liveUsers: [{
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+    }],
     saves: [
         {
             type: Schema.Types.ObjectId,

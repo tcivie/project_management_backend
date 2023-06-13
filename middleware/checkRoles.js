@@ -40,7 +40,7 @@ const hasNoRoles = () => (req, res, next) => {
 const CanPerfomAction = () => (req, res, next) => {
     const isUserActionOnThemselves = req.user === req.body.username || req.body.username === undefined;
     if (isUserActionOnThemselves) {
-        console.log(req.user, req.body.username);
+        // console.log(req.user, req.body.username);
         console.log('User is performing action on themselves');
         next();
     } else {

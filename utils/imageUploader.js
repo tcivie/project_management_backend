@@ -28,15 +28,15 @@ const fileFilter = (req, file, cb) => {
 };
 
 const deleteExistingImages = async (req, res, next) => {
-    console.log('delete existing images');
+    // console.log('delete existing images');
     const post = await posts.findById(req.params.postId).exec();
     if (!post) {
         return res.status(404).json({ message: 'Post not found.' });
     }
     const currentImages = post.postImages;
-    console.log('currentImages', currentImages);
+    // console.log('currentImages', currentImages);
     const existingImages = JSON.parse(req.body.existingImages || '[]');
-    console.log('existingImages', existingImages);
+    // console.log('existingImages', existingImages);
     currentImages.forEach((path) => {
         if (!existingImages.includes(path)) {
             fs.unlink(path, (err) => {
