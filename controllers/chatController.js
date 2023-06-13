@@ -23,7 +23,6 @@ const getChatHistory = asyncHandler(async (req, res) => {
 // @route POST /api/chat/post/:postId
 // @access Public
 const sendMessage = asyncHandler(async (req, res) => {
-    // console.log('Sending message');
     const { postId } = req.params;
     const { userId, content, replyTo } = req.body;
     messages.create({
@@ -100,8 +99,6 @@ const getPosts = asyncHandler(async (req, res) => {
 // @route POST /api/chat/posts/latest/:page/:count/:cityId/:lang
 // @access Public
 const getLatestPosts = asyncHandler(async (req, res) => {
-    // console.log('getLatestPosts');
-    // console.log(req.body);
     const {
         page, count, cityId, lang,
     } = req.params;
@@ -248,7 +245,7 @@ const unsetHelpful = asyncHandler(async (req, res) => {
 // @route DELETE /api/chat/posts/delete/:postId
 // @access Private
 const deletePost = asyncHandler(async (req, res) => {
-    // console.log('delete post');
+    console.log('delete post');
     const { postId } = req.params;
     if (!mongoose.isValidObjectId(postId)) {
         return res.status(400).json({ message: 'Invalid ID format' });
@@ -264,7 +261,7 @@ const deletePost = asyncHandler(async (req, res) => {
 // @route PUT /api/chat/update/:postId
 // @access Private
 const updatePost = asyncHandler(async (req, res) => {
-    // console.log('update post');
+    console.log('update post');
     const { postId } = req.params;
     if (!mongoose.isValidObjectId(postId)) {
         return res.status(400).json({ message: 'Invalid ID format' });
@@ -273,8 +270,8 @@ const updatePost = asyncHandler(async (req, res) => {
     const {
         language, city, title, content, tags, existingImages,
     } = req.body;
-    // console.log('req.files', req.files);
-    // console.log('req.body', req.body);
+    console.log('req.files', req.files);
+    console.log('req.body', req.body);
     const newImagePaths = req?.files ? req.files.map((file) => file.path) : [];
     const postImages = [...newImagePaths, ...JSON.parse(existingImages || '[]')];
 
@@ -285,7 +282,7 @@ const updatePost = asyncHandler(async (req, res) => {
     if (content) updateData.content = content;
     if (tags && tags.length > 0) updateData.tags = tags;
     updateData.postImages = postImages;
-    // console.log('UpdateData', updateData);
+    console.log('UpdateData', updateData);
     const updatedPost = await posts.findOneAndUpdate(
         { _id: postId, userId: req?.id },
         updateData,
