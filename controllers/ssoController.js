@@ -23,10 +23,19 @@ const googleSignIn = asyncHandler(async (req, res) => {
         const randomPassword = crypto.randomBytes(16).toString('hex');
         // create new user
         req.isSSO = true;
+        if (name === email) {
+            req.body = {
+                username: email,
+                nickname: email.split('@')[0],
+                password: randomPassword,
+                email,
+                picture,
+            };
+        }
         req.body = {
             username: email,
+            nickname: name,
             password: randomPassword,
-            name,
             email,
             picture,
         };

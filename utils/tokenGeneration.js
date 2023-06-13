@@ -6,6 +6,7 @@ const generateTokensAndResponse = async (res, user) => {
             UserInfo: {
                 id: user._id,
                 username: user.username,
+                nickname: user.nickname,
                 roles: user.roles,
                 active: user.active,
             },
@@ -34,6 +35,7 @@ const generateTokensAndResponse = async (res, user) => {
         UserInfo: {
             id: user._id,
             username: user.username,
+            nickname: user.nickname,
             roles: user.roles,
             active: user.active,
         },

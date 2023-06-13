@@ -15,7 +15,7 @@ const {
 
 router
     .use(verifyJWT)
-    .route('/all/')
+    .route('/all')
     .get(
         hasRoles(roleList.superAdmin, roleList.admin),
         usersController.getAllUsers,

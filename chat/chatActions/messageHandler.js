@@ -2,6 +2,7 @@ const { roleList } = require('../../middleware/checkRoles');
 const messages = require('../../models/Chat/Messages');
 
 async function createMessage(postId, userId, content, replyTo) {
+    if (content === '') return null;
     return messages.create({
         postId, userId, content, replyTo,
     });

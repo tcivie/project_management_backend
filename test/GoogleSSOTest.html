@@ -16,7 +16,7 @@
 
 <script>
   function handleCredentialResponse(response) {
-    console.log("ID: " + response.credential);
+    // console.log("ID: " + response.credential);
     // Here you should make the POST request to your server
     fetch('http://localhost:3000/api/sso/google', {
       method: 'POST',
@@ -27,7 +27,7 @@
     })
             .then(response => response.json())
             .then(data => {
-              console.log(data)
+              // console.log(data)
               // change the isSignedIn div to show the user's email address and success message
                 document.getElementById("isSignedIn").innerHTML = "You are signed in as: " + data.UserInfo.username;
               // remove the sign in button

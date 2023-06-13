@@ -14,7 +14,7 @@ router.get('/userAvatar/', (req, res) => {
 router.get('/postImage/:image', (req, res) => {
     const { image } = req.params;
     if (image) {
-        console.log('Sending image', `${process.cwd()}/${image}`);
+        // console.log('Sending image', `${process.cwd()}/${image}`);
         res.sendFile(`${process.cwd()}/${image}`);
     } else {
         res.status(404).json({ error: 'Image not found' });
